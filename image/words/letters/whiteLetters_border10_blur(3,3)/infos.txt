@@ -1,0 +1,3 @@
+Precision: 1.0
+Erros de mismatch: 0
+Erros de reconhecimento: 0

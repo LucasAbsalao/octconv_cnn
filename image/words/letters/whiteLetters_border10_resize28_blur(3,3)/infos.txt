@@ -1,0 +1,4 @@
+Precision: 0.9384615384615385
+Erros de mismatch: 0
+Erros de reconhecimento: 16
+	Erros nas letras: [10, 12, 14, 209, 213, 215, 219, 221, 222, 224, 227, 230, 232, 233, 236, 237]
