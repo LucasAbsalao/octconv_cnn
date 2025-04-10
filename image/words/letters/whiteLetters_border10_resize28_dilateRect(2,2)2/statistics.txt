@@ -1,1 +1,0 @@
-Precision: 0.019230769230769232Erros de mismatch: 5Erros de reconhecimento: 0
