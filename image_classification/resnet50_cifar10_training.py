@@ -40,7 +40,6 @@ for epoch in range(EPOCHS):
     losses = []
     running_loss = 0
     for i, inp in enumerate(trainloader):
-        inputs, labels = inp
         inputs, labels = inputs.to('cpu'), labels.to('cpu')
         optimizer.zero_grad()
     

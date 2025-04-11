@@ -56,7 +56,7 @@ class Block(nn.Module):
     def forward(self, x):
         identity = x.clone()
 
-        x = self.relu(self.batch_norm2(self.conv1(x))) #Estranho!!!!
+        x = self.relu(self.batch_norm1(self.conv1(x))) #Estranho!!!!
         x = self.batch_norm2(self.conv2(x))
 
         if self.i_downsample is not None:

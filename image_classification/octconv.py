@@ -49,4 +49,44 @@ class OctaveConv(nn.Module):
             if self.is_dw:
                 return x_h2h, x_l2l
             else:
-                x_l2h = self.conv_l2h
+                x_l2h = self.conv_l2h(x_l)
+                x_l2h = self.upsample(x_l) if self.stride == 1 else x_l2h
+                x_h = x_l2h + x_h2h
+                x_l = x_h2l + x_l2l if x_h2l is not None and x_h2h is not None else None
+
+                return x_h, x_l
+
+        else:
+            return x_h2h, x_h2l
+
+
+class Conv_BN(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, alpha_in = 0.5, alpha_out = 0.5, stride = 1, padding = 0, dilation = 1,
+                groups = 1, bias = False, norm_layer = nn.BatchNorm2d):
+        super(Conv_BN, self).__init__()
+        self.conv = OctaveConv(in_channels, out_channels, kernel_size, alpha_in, alpha_out, stride, padding, dilation, groups, bias)
+
+        self.bn_h = None if alpha_out == 1 else norm_layer(int(out_channels * (1 - alpha_out)))
+        self.bn_l = None if alpha_out == 0 else norm_layer(int(out_channels * alpha_out))
+
+    def forward(self, x):
+        x_h, x_l = self.conv(x)
+        x_h = self.bn_h(x_h)
+        x_l = self.bn_l(x_l) if x_l is not None else None
+        return x_h, x_l
+
+class Conv_BN_ACT(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, alpha_in = 0.5, alpha_out = 0.5, stride = 1, padding = 0, dilation = 1,
+                groups=1, bias = False, norm_layer = nn.BatchNorm2d, activation_layer = nn.ReLU):
+        super(Conv_BN_ACT, self).__init__()
+        self.conv = OctaveConv(in_channels, out_channels, kernel_size, alpha_in, alpha_out, stride, padding, dilation, groups, bias)
+
+        self.bn_h = None if alpha_out == 1 else norm_layer(int(out_channels * (1 - alpha_out)))
+        self.bn_l = None if alpha_out == 0 else norm_layer(int(out_channels * alpha_out))
+        self.act = activation_layer(inplace = True)
+
+    def forward(self, x):
+        x_h, x_l = self.conv(x)
+        x_h = self.act(self.bn_h(x_h))
+        x_l = self.act(self.bn_l(x_l)) if x_l is not None else None
+        return x_h, x_l
