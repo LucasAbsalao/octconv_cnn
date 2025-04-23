@@ -40,7 +40,7 @@ print(type(scheduler))
 
 EPOCHS = 10
 
-train_model(EPOCHS, criterion, optimizer, scheduler, device, trainloader)
+all_losses = train_model(net, EPOCHS, criterion, optimizer, scheduler, device, trainloader)
 
 torch.save(net.state_dict(), f"model_{EPOCHS}.pth")
 print("Saved PyTorch Model State to model.pth")

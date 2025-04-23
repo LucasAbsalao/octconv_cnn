@@ -5,7 +5,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-def train_model(epochs, criterion, optimizer, scheduler, device, trainloader):
+def train_model(model, epochs, criterion, optimizer, scheduler, device, trainloader):
+    all_losses = []
     for epoch in range(epochs):
         losses = []
         running_loss = 0
@@ -14,7 +15,7 @@ def train_model(epochs, criterion, optimizer, scheduler, device, trainloader):
             inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad()
         
-            outputs = net(inputs)
+            outputs = model(inputs)
             loss = criterion(outputs, labels)
             losses.append(loss.item())
 
@@ -29,5 +30,7 @@ def train_model(epochs, criterion, optimizer, scheduler, device, trainloader):
 
         avg_loss = sum(losses)/len(losses)
         scheduler.step(avg_loss)
+        all_losses.append(avg_loss)
                 
     print('Training Done')
+    return all_losses
