@@ -5,33 +5,30 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from neural_networks.OctResNet import OctResNet50, OctResNet18
+from neural_networks.resnet import Bottleneck, ResNet50, ResNet
 
-transform_train = transforms.Compose([
+
+transform_afhq = transforms.Compose([
+    transforms.Resize((64,64)),
     transforms.RandomHorizontalFlip(),
-    transforms.RandomCrop(32,padding=4),
     transforms.ToTensor(),
-    transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5))
+    transforms.Normalize([0.480, 0.448, 0.398], [0.277, 0.269, 0.282])
 ])
 
-transform_test = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-])
 
-train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
+train = torchvision.datasets.ImageFolder('data/afhq/train', transform=transform_afhq)
 
 trainloader = torch.utils.data.DataLoader(train, batch_size=128, shuffle=True, num_workers=2)
 
-test = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
+val = torchvision.datasets.ImageFolder('data/afhq/val', transform=transform_afhq)
 
-testloader = torch.utils.data.DataLoader(test, batch_size=128, shuffle=False, num_workers=2)
+valloader = torch.utils.data.DataLoader(val, batch_size=128,shuffle=False, num_workers=2)
 
 classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-net = OctResNet18(num_classes = 10).to(device)
+net = ResNet50(3).to(device)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.1, momentum=0.9, weight_decay=0.0001)
@@ -44,7 +41,6 @@ for epoch in range(EPOCHS):
     for i, inp in enumerate(trainloader):
         inputs, labels = inp
         inputs, labels = inputs.to(device), labels.to(device)
-        print("Shape ", inputs.shape)
         optimizer.zero_grad()
     
         outputs = net(inputs)
@@ -65,11 +61,13 @@ for epoch in range(EPOCHS):
             
 print('Training Done')
 
+torch.save(net.state_dict(), f"model_{EPOCHS}.pth")
+print("Saved PyTorch Model State to model.pth")
 
 correct = 0
 total = 0
 with torch.no_grad():
-    for (images, labels) in testloader:
+    for (images, labels) in valloader:
         images, labels = images.to(device), labels.to(device)
         outputs = net(images)
 
@@ -77,4 +75,5 @@ with torch.no_grad():
         total += labels.size(0)
         correct += (predicted==labels).sum().item()
 
-print(f"Accuracy on {len(testloader)} test images: {100*(correct/total)}%")
+
+print(f"Accuracy on {len(valloader)} val images: {100*(correct/total)}%")

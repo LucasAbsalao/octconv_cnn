@@ -34,7 +34,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 net = ResNet50(10).to(device)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=0.1, momentum=0.9, weight_decay=0.0001)
+optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9, weight_decay=0.0001)
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor = 0.1, patience=5)
 
 EPOCHS = 10

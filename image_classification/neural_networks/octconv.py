@@ -32,10 +32,11 @@ class OctaveConv(nn.Module):
                                   padding = padding, dilation = dilation, groups=groups, bias = bias)
         
         self.conv_h2h = None if alpha_in == 1 or alpha_out == 1 else \
-                        nn.Conv2d(in_channels = in_channels - int(alpha_in * in_channels), out_channels = int(alpha_out * out_channels), kernel_size = kernel_size, stride = 1, 
+                        nn.Conv2d(in_channels = in_channels - int(alpha_in * in_channels), out_channels = out_channels - int(alpha_out * out_channels), kernel_size = kernel_size, stride = 1, 
                                   padding = padding, dilation = dilation, groups=math.ceil(groups - alpha_in * groups), bias = bias)
         
     def forward(self, x):
+        print("OctConv: ")
         x_h, x_l = x if type(x) is tuple else (x, None)
 
         x_h = self.downsample(x_h) if self.stride == 2 else x_h
@@ -50,9 +51,9 @@ class OctaveConv(nn.Module):
                 return x_h2h, x_l2l
             else:
                 x_l2h = self.conv_l2h(x_l)
-                x_l2h = self.upsample(x_l) if self.stride == 1 else x_l2h
+                x_l2h = self.upsample(x_l2h) if self.stride == 1 else x_l2h
                 x_h = x_l2h + x_h2h
-                x_l = x_h2l + x_l2l if x_h2l is not None and x_h2h is not None else None
+                x_l = x_h2l + x_l2l if x_h2l is not None and x_l2l is not None else None
 
                 return x_h, x_l
 

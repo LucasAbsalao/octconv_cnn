@@ -62,8 +62,8 @@ class Block(nn.Module):
         if self.i_downsample is not None:
             identity = self.i_downsample(identity)
 
-        print(x.shape)
-        print(identity.shape)
+        #print(x.shape)
+        #print(identity.shape)
 
         x += identity
         x = self.relu(x)
@@ -92,10 +92,16 @@ class ResNet(nn.Module):
         x = self.relu(self.batch_norm1(self.conv1(x)))
         x = self.max_pool(x)
 
+        #print("Opa --------------------------------------")
+        #print(x.shape)
         x = self.layer1(x)
+        #print(x.shape)
         x = self.layer2(x)
+        #print(x.shape)
         x = self.layer3(x)
+        #print(x.shape)
         x = self.layer4(x)
+        #print(x.shape)
 
         x = self.avgpool(x)
         x = x.reshape(x.shape[0], -1)
