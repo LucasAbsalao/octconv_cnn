@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from neural_networks.resnet import Bottleneck, ResNet50, ResNet
+from train.train import train_model
 
 
 transform_afhq = transforms.Compose([
@@ -31,35 +32,15 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 net = ResNet50(3).to(device)
 
 criterion = nn.CrossEntropyLoss()
+print(type(criterion))
 optimizer = optim.SGD(net.parameters(), lr=0.1, momentum=0.9, weight_decay=0.0001)
+print(type(optimizer))
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor = 0.1, patience=5)
+print(type(scheduler))
 
 EPOCHS = 10
-for epoch in range(EPOCHS):
-    losses = []
-    running_loss = 0
-    for i, inp in enumerate(trainloader):
-        inputs, labels = inp
-        inputs, labels = inputs.to(device), labels.to(device)
-        optimizer.zero_grad()
-    
-        outputs = net(inputs)
-        loss = criterion(outputs, labels)
-        losses.append(loss.item())
 
-        loss.backward()
-        optimizer.step()
-        
-        running_loss += loss.item()
-        
-        if i%100 == 0 and i > 0:
-            print(f'Loss [{epoch+1}, {i}](epoch, minibatch): ', running_loss / 100)
-            running_loss = 0.0
-
-    avg_loss = sum(losses)/len(losses)
-    scheduler.step(avg_loss)
-            
-print('Training Done')
+train_model(EPOCHS, criterion, optimizer, scheduler, device, trainloader)
 
 torch.save(net.state_dict(), f"model_{EPOCHS}.pth")
 print("Saved PyTorch Model State to model.pth")
