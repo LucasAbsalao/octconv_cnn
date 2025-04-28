@@ -6,14 +6,15 @@ authors = [
     {name = "LucasAbsalao",email = "lsa4@cin.ufpe.br"}
 ]
 readme = "README.md"
-requires-python = ">=3.13,<4.0"
+requires-python = ">=3.10,<4.0"
 dependencies = [
     "numpy (>=2.2.4,<3.0.0)",
     "opencv-python (>=4.11.0.86,<5.0.0.0)",
     "matplotlib (>=3.10.1,<4.0.0)",
     "torch (>=2.6.0,<3.0.0)",
     "torchvision (>=0.21.0,<0.22.0)",
-    "ipykernel (>=6.29.5,<7.0.0)"
+    "ipykernel (>=6.29.5,<7.0.0)",
+    "tqdm (>=4.67.1,<5.0.0)"
 ]
 
 

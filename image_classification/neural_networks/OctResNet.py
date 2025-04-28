@@ -115,16 +115,16 @@ class OctResNet(nn.Module):
         return nn.Sequential(*layers)
     
     def forward(self, x):
-        print("OctResNet: ")
+        # print("OctResNet: ")
         x = self.conv1(x)
         x = self.batch_norm1(x)
         x = self.relu(x)
         x = self.maxpool(x)
-        print(x.shape)
+        # print(x.shape)
 
         x_h, x_l = self.layer1(x)
-        print("x_h: ", x_h.shape)
-        print("x_l: ", x_l.shape)
+        # print("x_h: ", x_h.shape)
+        # print("x_l: ", x_l.shape)
         x_h, x_l = self.layer2((x_h,x_l))
         x_h, x_l = self.layer3((x_h,x_l))
         x_h, x_l = self.layer4((x_h,x_l))

@@ -36,7 +36,7 @@ class OctaveConv(nn.Module):
                                   padding = padding, dilation = dilation, groups=math.ceil(groups - alpha_in * groups), bias = bias)
         
     def forward(self, x):
-        print("OctConv: ")
+        #print("OctConv: ")
         x_h, x_l = x if type(x) is tuple else (x, None)
 
         x_h = self.downsample(x_h) if self.stride == 2 else x_h
