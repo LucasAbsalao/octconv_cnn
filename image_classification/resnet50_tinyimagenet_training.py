@@ -9,10 +9,6 @@ from neural_networks.OctResNet import OctResNet50, OctResNet18
 from train_test_nn.train import train_model, train_val_model
 from train_test_nn.test import validate_model
 
-# import gc
-# del variables
-# gc.collect()
-
 
 transform_afhq = transforms.Compose([
     transforms.Resize((64,64)),
@@ -37,6 +33,10 @@ torch.cuda.empty_cache()
 
 net = ResNet50(3).to(device)
 
+first_tensor, _ = next(iter(trainloader))
+size_tensor = first_tensor.size()
+print(size_tensor)
+
 criterion = nn.CrossEntropyLoss()
 print(type(criterion))
 optimizer = optim.Adam(net.parameters(), lr=0.001)
@@ -46,7 +46,7 @@ print(type(scheduler))
 
 print(torch.cuda.memory_summary(device=None, abbreviated=False))
 
-EPOCHS = 10
+EPOCHS = 1
 all_losses = train_val_model(net, EPOCHS, criterion, optimizer, scheduler, device, trainloader, valloader)
 
 torch.save(net.state_dict(), f"trained_models/model_{EPOCHS}.pth")

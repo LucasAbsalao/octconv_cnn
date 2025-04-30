@@ -1,3 +1,5 @@
 image_classification/data/
 
 pretrained_models/
+
+image_classification/trained_models

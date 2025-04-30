@@ -3,7 +3,6 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classifica
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 def validate_model(model, valloader, device='cpu', num_classes = 0, labels_name = None, show_cm = False):
     correct = 0
     total = 0
@@ -34,9 +33,12 @@ def validate_model(model, valloader, device='cpu', num_classes = 0, labels_name 
 
 def show_confusion_matrix(labels, labels_name, expected, predicted):
     cm = confusion_matrix(y_true = expected, y_pred = predicted, labels = labels)
-    cm_disp = ConfusionMatrixDisplay(confusion_matrix = cm, display_labels=labels_name)
-    cm_disp.plot()
-    plt.show()
+    if len(labels) > 50: 
+        print(cm)
+    else:
+        cm_disp = ConfusionMatrixDisplay(confusion_matrix = cm, display_labels=labels_name)
+        cm_disp.plot()
+        plt.show()
 
 
 
