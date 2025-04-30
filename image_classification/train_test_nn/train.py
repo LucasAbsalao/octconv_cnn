@@ -41,9 +41,11 @@ def train_model(model, epochs, criterion, optimizer, scheduler, device, trainloa
     plot_loss(all_losses, epochs)
     return all_losses
 
-def plot_loss(all_losses, epochs):
+def plot_loss(all_losses, title=None):
     fig = plt.figure(figsize=(15,15))
     plt.plot(all_losses, marker = 'o')
+    if title is not None:
+        plt.title(title)
     plt.show()
 
 def train_val_model(model, epochs, criterion, optimizer, scheduler, device, trainloader, valloader):
@@ -79,6 +81,6 @@ def train_val_model(model, epochs, criterion, optimizer, scheduler, device, trai
         val_accuracy.append(100*(correct/total))
                 
     print('Training Done')
-    plot_loss(all_losses, epochs)
-    plot_loss(val_accuracy, epochs)
+    plot_loss(all_losses, 'Loss por época')
+    plot_loss(val_accuracy, "Accuracy por época")
     return all_losses

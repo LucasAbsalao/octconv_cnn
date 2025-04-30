@@ -22,18 +22,20 @@ transform_afhq = transforms.Compose([
 ])
 
 
-train = torchvision.datasets.ImageFolder('data/tiny-imagenet-200/train', transform=transform_afhq)
+train = torchvision.datasets.ImageFolder('data/afhq/train', transform=transform_afhq)
 trainloader = torch.utils.data.DataLoader(train, batch_size=64, shuffle=True, num_workers=2)
 
-val = torchvision.datasets.ImageFolder('data/tiny-imagenet-200/val', transform=transform_afhq)
+val = torchvision.datasets.ImageFolder('data/afhq/val', transform=transform_afhq)
 valloader = torch.utils.data.DataLoader(val, batch_size=64,shuffle=False, num_workers=2)
 
+torch.cuda.init()
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
 torch.cuda.empty_cache()
 
-net = OctResNet50(num_classes = 200).to(device)
+
+net = ResNet50(3).to(device)
 
 criterion = nn.CrossEntropyLoss()
 print(type(criterion))
@@ -44,10 +46,10 @@ print(type(scheduler))
 
 print(torch.cuda.memory_summary(device=None, abbreviated=False))
 
-EPOCHS = 1
+EPOCHS = 10
 all_losses = train_val_model(net, EPOCHS, criterion, optimizer, scheduler, device, trainloader, valloader)
 
 torch.save(net.state_dict(), f"trained_models/model_{EPOCHS}.pth")
 print("Saved PyTorch Model State to model.pth")
 
-correct, total = validate_model(net, valloader, device, num_classes = 200, show_cm = True)
+correct, total = validate_model(net, valloader, device, num_classes = 3, labels_name = ['Cat', 'Dog', 'Wild'], show_cm = True)
