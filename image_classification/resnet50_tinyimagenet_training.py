@@ -7,7 +7,8 @@ import torch.optim as optim
 from neural_networks.resnet import Bottleneck, ResNet50, ResNet
 from neural_networks.OctResNet import OctResNet50, OctResNet18
 from train_test_nn.train import train_model, train_val_model
-from train_test_nn.test import validate_model
+from train_test_nn.test import validate_model, get_flops, get_flops_fvcore, get_flops_ptflops
+
 
 
 transform_afhq = transforms.Compose([
@@ -31,7 +32,7 @@ print(device)
 torch.cuda.empty_cache()
 
 
-net = ResNet50(3).to(device)
+model = OctResNet50(num_classes = 3).to(device)
 
 first_tensor, _ = next(iter(trainloader))
 size_tensor = first_tensor.size()
@@ -39,7 +40,7 @@ print(size_tensor)
 
 criterion = nn.CrossEntropyLoss()
 print(type(criterion))
-optimizer = optim.Adam(net.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
 print(type(optimizer))
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor = 0.1, patience=5)
 print(type(scheduler))
@@ -47,9 +48,14 @@ print(type(scheduler))
 print(torch.cuda.memory_summary(device=None, abbreviated=False))
 
 EPOCHS = 1
-all_losses = train_val_model(net, EPOCHS, criterion, optimizer, scheduler, device, trainloader, valloader)
+all_losses = train_val_model(model, EPOCHS, criterion, optimizer, scheduler, device, trainloader, valloader)
 
-torch.save(net.state_dict(), f"trained_models/model_{EPOCHS}.pth")
+torch.save(model.state_dict(), f"trained_models/model_{EPOCHS}.pth")
 print("Saved PyTorch Model State to model.pth")
 
-correct, total = validate_model(net, valloader, device, num_classes = 3, labels_name = ['Cat', 'Dog', 'Wild'], show_cm = True)
+correct, total = validate_model(model, valloader, device, num_classes = 3, labels_name = ['Cat', 'Dog', 'Wild'], show_cm = True)
+
+valloader_2 = torch.utils.data.DataLoader(val, batch_size=1, shuffle=False, num_workers=2)
+first_input, _ = next(iter(valloader_2))
+flops = get_flops_ptflops(model, first_input, device)
+print("A quantidade de flops foi de ", flops, " flops para um tensor de ", first_input.size())

@@ -39,6 +39,8 @@ class OctaveConv(nn.Module):
         #print("OctConv: ")
         x_h, x_l = x if type(x) is tuple else (x, None)
 
+        #fig, axs = plt.subplots
+
         x_h = self.downsample(x_h) if self.stride == 2 else x_h
 
         x_h2h = self.conv_h2h(x_h)

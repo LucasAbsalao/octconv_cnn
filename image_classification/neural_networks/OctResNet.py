@@ -31,6 +31,7 @@ class OctBottleNeck(nn.Module):
         identity_l = x[1] if type(x) is tuple else None
 
         x_h, x_l = self.conv1(x)
+        #print("tamanhos de ", x_h.size() if isinstance(x_h, torch.Tensor) else "vazio", x_l.size() if isinstance(x_l, torch.Tensor) else "vazio")
         x_h, x_l = self.conv2((x_h, x_l))
         x_h, x_l = self.conv3((x_h, x_l))
 
