@@ -123,7 +123,7 @@ def get_flops_torch_flops(model, input, device = 'cpu'):
     print("Tipo do tensor para calcular o flop: ", input.type())
     print("Tamanho do tensor para calcular o flop: ", tuple(input.size())[1:])
     
-    with torch.no_grad:
+    with torch.no_grad():
         model(input)
 
     flops_counter = TorchFLOPsByFX(model)
@@ -133,8 +133,6 @@ def get_flops_torch_flops(model, input, device = 'cpu'):
     total_flops = flops_counter.print_total_flops(show=True)
     total_time = flops_counter.print_total_time()
     max_memory = flops_counter.print_max_memory()
-
-    print(result_table)
 
     if istrain:
         model.train()

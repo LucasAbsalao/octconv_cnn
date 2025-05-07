@@ -7,7 +7,7 @@ import torch.optim as optim
 from neural_networks.resnet import Bottleneck, ResNet50, ResNet
 from neural_networks.OctResNet import OctResNet50, OctResNet18
 from train_test_nn.train import train_model, train_val_model
-from train_test_nn.test import validate_model, get_flops, get_flops_fvcore, get_flops_ptflops
+from train_test_nn.test import validate_model, get_flops, get_flops_fvcore, get_flops_ptflops, get_flops_torch_flops
 
 
 
@@ -55,7 +55,13 @@ print("Saved PyTorch Model State to model.pth")
 
 correct, total = validate_model(model, valloader, device, num_classes = 3, labels_name = ['Cat', 'Dog', 'Wild'], show_cm = True)
 
+# -------------------------------------- FLOPs -----------------------------------------------
 valloader_2 = torch.utils.data.DataLoader(val, batch_size=1, shuffle=False, num_workers=2)
 first_input, _ = next(iter(valloader_2))
-flops = get_flops_ptflops(model, first_input, device)
+flops = get_flops_fvcore(model, first_input, device)
 print("A quantidade de flops foi de ", flops, " flops para um tensor de ", first_input.size())
+
+
+with open("flops.txt", 'a') as file:
+    file.write("fvcore - \n")
+    file.write(f"\tOctResNet50 - A quantidade de flops foi de {flops} flops para um tensor de {first_input.size()}\n")
