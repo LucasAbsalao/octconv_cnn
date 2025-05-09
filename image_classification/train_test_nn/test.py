@@ -46,7 +46,7 @@ def show_confusion_matrix(labels, labels_name, expected, predicted):
         cm_disp.plot()
         plt.show()
 
-def get_flops(model, input, device = 'cpu'):
+def get_flops_counter_mode(model, input, device = 'cpu'):
     istrain = model.training
     model.eval()
 

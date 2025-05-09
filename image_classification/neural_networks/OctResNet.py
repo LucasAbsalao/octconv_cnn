@@ -50,7 +50,7 @@ class OctBottleNeck(nn.Module):
 class OctResNet(nn.Module):
 
     def __init__(self, block, layers, num_classes = 1000, zero_init_residual = False,
-                 groups = 1, width_per_group = 64, norm_layer = None, num_channels = 3):
+                 groups = 1, width_per_group = 64, norm_layer = None, num_channels = 3, alpha_in = 0.5, alpha_out = 0.5): #Implementar Alpha_in!!!!!!!!
         super(OctResNet, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
@@ -65,10 +65,10 @@ class OctResNet(nn.Module):
         self.relu = nn.ReLU(inplace = True)
         self.maxpool = nn.MaxPool2d(kernel_size = 3, stride = 2, padding = 1)
 
-        self.layer1 = self._make_layer(block, 64, layers[0], norm_layer = norm_layer, alpha_in = 0)
-        self.layer2 = self._make_layer(block, 128, layers[1], stride = 2, norm_layer = norm_layer)
-        self.layer3 = self._make_layer(block, 256, layers[2], stride = 2, norm_layer = norm_layer)
-        self.layer4 = self._make_layer(block, 512, layers[3], stride = 2, norm_layer = norm_layer, alpha_out = 0, output = True)
+        self.layer1 = self._make_layer(block, 64, layers[0], norm_layer = norm_layer, alpha_in = 0, alpha_out = alpha_out)
+        self.layer2 = self._make_layer(block, 128, layers[1], stride = 2, norm_layer = norm_layer, alpha_in = alpha_in, alpha_out = alpha_out)
+        self.layer3 = self._make_layer(block, 256, layers[2], stride = 2, norm_layer = norm_layer, alpha_in = alpha_in, alpha_out = alpha_out)
+        self.layer4 = self._make_layer(block, 512, layers[3], stride = 2, norm_layer = norm_layer, alpha_in = alpha_in, alpha_out = 0, output = True)
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1)) 
         self.fc = nn.Linear(512 * block.expansion, num_classes)
@@ -116,24 +116,50 @@ class OctResNet(nn.Module):
         return nn.Sequential(*layers)
     
     def forward(self, x):
-        # print("OctResNet: ")
+        
         x = self.conv1(x)
         x = self.batch_norm1(x)
         x = self.relu(x)
         x = self.maxpool(x)
-        # print(x.shape)
 
         x_h, x_l = self.layer1(x)
-        # print("x_h: ", x_h.shape)
-        # print("x_l: ", x_l.shape)
         x_h, x_l = self.layer2((x_h,x_l))
         x_h, x_l = self.layer3((x_h,x_l))
         x_h, x_l = self.layer4((x_h,x_l))
+
         x = self.avgpool(x_h)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
 
         return x
+    
+'''
+def forward(self, x):
+        file=open("log.txt", "a")
+        print("OctResNet: \n", file = file)
+        x = self.conv1(x)
+        x = self.batch_norm1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+        print(f"first_x: {x.size()}\n", file = file)
+
+        x_h, x_l = self.layer1(x)
+        print(f"x_h1: {x_h.size()}\n", file = file)
+        print(f"x_l1: {x_l.size()}\n", file = file)
+        x_h, x_l = self.layer2((x_h,x_l))
+        print(f"x_h2: {x_h.size()}\n", file = file)
+        print(f"x_l2: {x_l.size()}\n", file = file)
+        x_h, x_l = self.layer3((x_h,x_l))
+        print(f"x_h3: {x_h.size()}\n", file = file)
+        print(f"x_l3: {x_l.size()}\n", file = file)
+        x_h, x_l = self.layer4((x_h,x_l))
+        print(f"x_h4: {x_h.size()}\n", file = file)
+        #print(f"x_l4: {x_l.size()}\n", file = file)
+        x = self.avgpool(x_h)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+
+        return x'''
     
 
 def OctResNet50(pretrained = False, **kwargs):

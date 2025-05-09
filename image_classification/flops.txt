@@ -6,12 +6,22 @@ torch_flops -
 	ResNet50 - A quantidade de flops foi de 672.139.264 flops para um tensor de torch.Size([1, 3, 64, 64])
 	OctResNet50 - A quantidade de flops foi de 389.561.344 flops para um tensor de torch.Size([1, 3, 64, 64])
 fvcore - 
-	ResNet50 - A quantidade de flops foi de 335472640 flops para um tensor de torch.Size([1, 3, 64, 64])
+	ResNet50 - A quantidade de flops foi de 335.472.640 flops para um tensor de torch.Size([1, 3, 64, 64])
 		Unsupported operator aten::max_pool2d encountered 1 time(s)
 		Unsupported operator aten::clone encountered 16 time(s)
 		Unsupported operator aten::add_ encountered 16 time(s)
-	OctResNet50 - A quantidade de flops foi de 194636800 flops para um tensor de torch.Size([1, 3, 64, 64])
+	OctResNet50 - A quantidade de flops foi de 194.636.800 flops para um tensor de torch.Size([1, 3, 64, 64])
 		Unsupported operator aten::max_pool2d encountered 1 time(s)
 		Unsupported operator aten::avg_pool2d encountered 52 time(s)
 		Unsupported operator aten::add encountered 95 time(s)
 		Unsupported operator aten::add_ encountered 16 time(s)
+ptflops - 
+	ResNet50 - A quantidade de flops foi de 338.02 MMac flops para um tensor de torch.Size([1, 3, 64, 64])
+ptflops - 
+	OctResNet50 - A quantidade de flops foi de 338.02 MMac flops para um tensor de torch.Size([1, 3, 64, 64])
+ptflops - 
+	OctResNet50 - A quantidade de flops foi de 197.1 MMac flops para um tensor de torch.Size([1, 3, 64, 64])
+ptflops - 
+	OctResNet50 - A quantidade de flops foi de 197.1 MMac flops para um tensor de torch.Size([1, 3, 64, 64]) e alpha 0.5ptflops - 
+	OctResNet50 - A quantidade de flops foi de 197.1 MMac flops para um tensor de torch.Size([1, 3, 64, 64])e alpha 0.5ptflops - 
+	OctResNet50 - A quantidade de flops foi de 788.4 MMac flops para um tensor de torch.Size([1, 3, 128, 128]) e alpha 0.5

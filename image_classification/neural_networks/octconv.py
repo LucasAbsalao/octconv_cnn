@@ -36,32 +36,36 @@ class OctaveConv(nn.Module):
                                   padding = padding, dilation = dilation, groups=math.ceil(groups - alpha_in * groups), bias = bias)
         
     def forward(self, x):
-        #print("OctConv: ")
+        file = open("log.txt", "a")
+    
         x_h, x_l = x if type(x) is tuple else (x, None)
 
         #fig, axs = plt.subplots
 
         x_h = self.downsample(x_h) if self.stride == 2 else x_h
-
         x_h2h = self.conv_h2h(x_h)
         x_h2l = self.conv_h2l(self.downsample(x_h)) if self.alpha_out > 0 and not self.is_dw else None
+
 
         if x_l is not None:
             x_l2l = self.downsample(x_l) if self.stride == 2 else x_l
             x_l2l = self.conv_l2l(x_l2l) if self.alpha_out > 0 else None
+    
             if self.is_dw:
+                print("retur_dw\n", file = file)
                 return x_h2h, x_l2l
             else:
                 x_l2h = self.conv_l2h(x_l)
                 x_l2h = self.upsample(x_l2h) if self.stride == 1 else x_l2h
+        
                 x_h = x_l2h + x_h2h
                 x_l = x_h2l + x_l2l if x_h2l is not None and x_l2l is not None else None
+        
 
                 return x_h, x_l
 
         else:
             return x_h2h, x_h2l
-
 
 class Conv_BN(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, alpha_in = 0.5, alpha_out = 0.5, stride = 1, padding = 0, dilation = 1,
@@ -93,3 +97,44 @@ class Conv_BN_ACT(nn.Module):
         x_h = self.act(self.bn_h(x_h))
         x_l = self.act(self.bn_l(x_l)) if x_l is not None else None
         return x_h, x_l
+    
+
+'''
+def forward(self, x):
+        file = open("log.txt", "a")
+        error_message = "sem componente lf"
+        print("\t\tConv: \n", file = file)
+        print(f"\t\tFirst x: {x[0].size()} {x[1].size() if isinstance(x[1], torch.Tensor) else error_message}\n", file = file)
+        x_h, x_l = x if type(x) is tuple else (x, None)
+
+        #fig, axs = plt.subplots
+        print(f"\t\treceived: {x_h.size()} {x_l.size() if isinstance(x_l, torch.Tensor) else error_message}\n", file = file)
+
+        x_h = self.downsample(x_h) if self.stride == 2 else x_h
+        print(f"\t\treceived1: {x_h.size()} {x_l.size() if isinstance(x_l, torch.Tensor) else error_message}\n", file = file)
+        x_h2h = self.conv_h2h(x_h)
+        print(f"\t\treceived2: {x_h.size()} {x_l.size() if isinstance(x_l, torch.Tensor) else error_message}\n", file = file)
+        x_h2l = self.conv_h2l(self.downsample(x_h)) if self.alpha_out > 0 and not self.is_dw else None
+        print(f"\t\treceived3: {x_h.size()} {x_l.size() if isinstance(x_l, torch.Tensor) else error_message}\n", file = file)
+
+        if x_l is not None:
+            x_l2l = self.downsample(x_l) if self.stride == 2 else x_l
+            print(f"\t\treceived4: {x_h.size()} {x_l.size() if isinstance(x_l, torch.Tensor) else error_message}\n", file = file)
+            x_l2l = self.conv_l2l(x_l2l) if self.alpha_out > 0 else None
+            print(f"\t\treceived5: {x_h.size()} {x_l.size() if isinstance(x_l, torch.Tensor) else error_message}\n", file = file)
+            if self.is_dw:
+                print("retur_dw\n", file = file)
+                return x_h2h, x_l2l
+            else:
+                x_l2h = self.conv_l2h(x_l)
+                print(f"\t\treceived6: {x_h.size()} {x_l.size() if isinstance(x_l, torch.Tensor) else error_message}\n", file = file)
+                x_l2h = self.upsample(x_l2h) if self.stride == 1 else x_l2h
+                print(f"\t\treceived7: {x_h.size()} {x_l.size() if isinstance(x_l, torch.Tensor) else error_message}\n", file = file)
+                x_h = x_l2h + x_h2h
+                x_l = x_h2l + x_l2l if x_h2l is not None and x_l2l is not None else None
+                print(f"\t\treceived8: {x_h.size()} {x_l.size() if isinstance(x_l, torch.Tensor) else error_message}\n", file = file)
+
+                return x_h, x_l
+
+        else:
+            return x_h2h, x_h2l'''
