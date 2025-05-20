@@ -24,4 +24,15 @@ ptflops -
 ptflops - 
 	OctResNet50 - A quantidade de flops foi de 197.1 MMac flops para um tensor de torch.Size([1, 3, 64, 64]) e alpha 0.5ptflops - 
 	OctResNet50 - A quantidade de flops foi de 197.1 MMac flops para um tensor de torch.Size([1, 3, 64, 64])e alpha 0.5ptflops - 
-	OctResNet50 - A quantidade de flops foi de 788.4 MMac flops para um tensor de torch.Size([1, 3, 128, 128]) e alpha 0.5
+	OctResNet50 - A quantidade de flops foi de 788.4 MMac flops para um tensor de torch.Size([1, 3, 128, 128]) e alpha 0.5ptflops - 
+	OctResNet50 - A quantidade de flops foi de 788.4 MMac flops para um tensor de torch.Size([1, 3, 128, 128]) e alpha 0.5ptflops - 
+	OctResNet50 - A quantidade de flops foi de 1.03 GMac flops para um tensor de torch.Size([1, 3, 128, 128]) e alpha 0.25ptflops - 
+	OctResNet50 - A quantidade de flops foi de 258.48 MMac flops para um tensor de torch.Size([1, 3, 64, 64]) e alpha 0.25ptflops - 
+	OctResNet50 - A quantidade de flops foi de 197.1 MMac flops para um tensor de torch.Size([1, 3, 64, 64]) e alpha 0.25ptflops - 
+	OctResNet50 - A quantidade de flops foi de 197.1 MMac flops para um tensor de torch.Size([1, 3, 64, 64]) e alpha 0.5ptflops - 
+	OctResNet50 - A quantidade de flops foi de 197.1 MMac flops para um tensor de torch.Size([1, 3, 64, 64]) e alpha 0.5ptflops - 
+	OctResNet50 - A quantidade de flops foi de 197.1 MMac flops para um tensor de torch.Size([1, 3, 64, 64]) e alpha 0.5ptflops - 
+	OctResNet50 - A quantidade de flops foi de 296.79 MMac flops para um tensor de torch.Size([1, 3, 64, 64]) e alpha 0.125ptflops - 
+	OctResNet50 - A quantidade de flops foi de 296.79 MMac flops para um tensor de torch.Size([1, 3, 64, 64]) e alpha 0.125ptflops - 
+	OctResNet50 - A quantidade de flops foi de 258.48 MMac flops para um tensor de torch.Size([1, 3, 64, 64]) e alpha 0.25ptflops - 
+	OctResNet50 - A quantidade de flops foi de 156.08 MMac flops para um tensor de torch.Size([1, 3, 64, 64]) e alpha 0.75

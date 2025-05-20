@@ -14,7 +14,7 @@ def execute_model(type_model:str, epochs:int, dataset: str, num_classes: int, fl
 
     # -------------------------------------- Image Processing -----------------------------------------------
     transform_afhq = transforms.Compose([
-        transforms.Resize((128,128)),
+        transforms.Resize((64,64)),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
@@ -80,6 +80,8 @@ def execute_model(type_model:str, epochs:int, dataset: str, num_classes: int, fl
             flops = get_flops_ptflops(model, first_input, device)
         case "torch_flops":
             flops = get_flops_torch_flops(model, first_input, device)
+        case _:
+            return model
     
     print("A quantidade de flops foi de ", flops, " flops para um tensor de ", first_input.size())
 
@@ -89,5 +91,5 @@ def execute_model(type_model:str, epochs:int, dataset: str, num_classes: int, fl
 
     return model
 
-model = execute_model(type_model = "OctResNet50", epochs = 1, dataset = "afhq", num_classes = 3, flops_mode = "ptflops", alpha = 0.5)
+model = execute_model(type_model = "OctResNet50", epochs = 10, dataset = "afhq", num_classes = 3, flops_mode = "ptflops", alpha = 0.75)
 print("Script finalizado")

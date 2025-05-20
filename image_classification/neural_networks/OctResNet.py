@@ -12,16 +12,20 @@ class OctBottleNeck(nn.Module):
         super(OctBottleNeck, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
-
+        alpha_general = max(alpha_in, alpha_out)
         width = int(planes * (base_width / 64.)) * groups
-
+        print("OctResNet: alpha_in: ", alpha_in, " alpha_out: ", alpha_out)
+        print("output: ", output)
         self.conv1 = Conv_BN_ACT(inplanes, width, kernel_size = 1, alpha_in = alpha_in, alpha_out = alpha_out, norm_layer = norm_layer)
+        print("output: ", output)
         self.conv2 = Conv_BN_ACT(width, width, kernel_size=3, stride=stride, padding=1, groups=groups, norm_layer=norm_layer,
-                                 alpha_in=0 if output else 0.5, alpha_out=0 if output else 0.5)
+                                 alpha_in=0 if output else alpha_general, alpha_out=0 if output else alpha_general)
+        print("output: ", output)
         
 
         self.conv3 = Conv_BN(width, planes * self.expansion, kernel_size=1, norm_layer=norm_layer,
-                             alpha_in=0 if output else 0.5, alpha_out=0 if output else 0.5)
+                             alpha_in=0 if output else alpha_general, alpha_out=0 if output else alpha_general)
+        print("output: ", output)
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
         self.stride = stride
@@ -93,7 +97,7 @@ class OctResNet(nn.Module):
                     norm_layer = None, output = False):
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
-
+        alpha_general = max(alpha_in, alpha_out)
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
@@ -109,7 +113,7 @@ class OctResNet(nn.Module):
         for _ in range(1,blocks):
             layers.append(block(self.inplanes, planes, groups = self.groups,
                                 base_width = self.base_width, norm_layer = norm_layer,
-                                alpha_in = 0 if output else 0.5, alpha_out = 0 if output else 0.5,
+                                alpha_in = 0 if output else alpha_general, alpha_out = 0 if output else alpha_general,
                                 output = output))
             
 
@@ -133,6 +137,15 @@ class OctResNet(nn.Module):
 
         return x
     
+
+def OctResNet50(pretrained = False, **kwargs):
+    model = OctResNet(OctBottleNeck, [3, 4, 6, 3], **kwargs)
+    return model
+
+def OctResNet18(pretrained = False, **kwargs):
+    model = OctResNet(OctBottleNeck, [2,2,2,2], **kwargs)
+    return model
+
 '''
 def forward(self, x):
         file=open("log.txt", "a")
@@ -160,12 +173,3 @@ def forward(self, x):
         x = self.fc(x)
 
         return x'''
-    
-
-def OctResNet50(pretrained = False, **kwargs):
-    model = OctResNet(OctBottleNeck, [3, 4, 6, 3], **kwargs)
-    return model
-
-def OctResNet18(pretrained = False, **kwargs):
-    model = OctResNet(OctBottleNeck, [2,2,2,2], **kwargs)
-    return model

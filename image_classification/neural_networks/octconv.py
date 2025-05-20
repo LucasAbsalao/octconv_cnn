@@ -16,9 +16,10 @@ class OctaveConv(nn.Module):
 
         self.is_dw = groups == in_channels
 
-        assert 0 <= alpha_in <= 1 and 0 <= alpha_out <= 1, "Alpha should be in the inerval from 0 to 1"
+        assert 0 <= alpha_in <= 1 and 0 <= alpha_out <= 1, "Alpha should be in the interval from 0 to 1"
         self.alpha_in, self.alpha_out = alpha_in, alpha_out
 
+        print("alpha_in: ", alpha_in, " alpha_out: ", alpha_out)
         self.conv_l2l = None if alpha_in == 0 or alpha_out == 0 else \
                         nn.Conv2d(in_channels = int(alpha_in * in_channels), out_channels = int(alpha_out * out_channels), kernel_size = kernel_size, stride = 1, 
                                   padding = padding, dilation = dilation, groups=math.ceil(alpha_in * groups), bias = bias)
@@ -52,7 +53,6 @@ class OctaveConv(nn.Module):
             x_l2l = self.conv_l2l(x_l2l) if self.alpha_out > 0 else None
     
             if self.is_dw:
-                print("retur_dw\n", file = file)
                 return x_h2h, x_l2l
             else:
                 x_l2h = self.conv_l2h(x_l)
@@ -70,12 +70,12 @@ class OctaveConv(nn.Module):
 class Conv_BN(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, alpha_in = 0.5, alpha_out = 0.5, stride = 1, padding = 0, dilation = 1,
                 groups = 1, bias = False, norm_layer = nn.BatchNorm2d):
+        print("CONV_BN")
         super(Conv_BN, self).__init__()
         self.conv = OctaveConv(in_channels, out_channels, kernel_size, alpha_in, alpha_out, stride, padding, dilation, groups, bias)
 
         self.bn_h = None if alpha_out == 1 else norm_layer(int(out_channels * (1 - alpha_out)))
         self.bn_l = None if alpha_out == 0 else norm_layer(int(out_channels * alpha_out))
-
     def forward(self, x):
         x_h, x_l = self.conv(x)
         x_h = self.bn_h(x_h)
@@ -86,6 +86,7 @@ class Conv_BN_ACT(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, alpha_in = 0.5, alpha_out = 0.5, stride = 1, padding = 0, dilation = 1,
                 groups=1, bias = False, norm_layer = nn.BatchNorm2d, activation_layer = nn.ReLU):
         super(Conv_BN_ACT, self).__init__()
+        print("CONV_BN_ACT")
         self.conv = OctaveConv(in_channels, out_channels, kernel_size, alpha_in, alpha_out, stride, padding, dilation, groups, bias)
 
         self.bn_h = None if alpha_out == 1 else norm_layer(int(out_channels * (1 - alpha_out)))
