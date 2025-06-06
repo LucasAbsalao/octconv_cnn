@@ -8,7 +8,7 @@ import pandas as pd
 
 class LIVE(Dataset):
     def __init__(self, csv_file, img_dir, transform=None):
-            self.csv_file = pd.read_csv(csv_file)
+            self.csv_file = csv_file
             self.img_dir = img_dir
             self.transform = transform
 

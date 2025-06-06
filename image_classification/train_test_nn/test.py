@@ -1,4 +1,5 @@
 import torch
+import torch.utils
 import torchvision.models as models
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
 import matplotlib.pyplot as plt
@@ -36,6 +37,27 @@ def validate_model(model, valloader, device='cpu', num_classes = 0, labels_name 
         print("\nRelatório de Classificação:\n", classification_report(all_labels, all_predicts))
 
     return correct, total
+
+def validate_model_regression(model, valloader, device='cpu', loss = 'mse'):
+    if loss == 'mse':
+        criterion = torch.nn.MSELoss()
+    mse_total = 0
+    total = 0
+    model.eval()
+    with torch.no_grad():
+        for (images, labels) in valloader:
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+
+
+            mse = criterion(outputs.data, labels)
+            total += labels.size(0)
+            mse_total += mse
+
+
+    print(f"Accuracy on {len(valloader) * valloader.batch_size} val images: {mse/total}")
+
+    return mse_total, total
 
 def show_confusion_matrix(labels, labels_name, expected, predicted):
     cm = confusion_matrix(y_true = expected, y_pred = predicted, labels = labels)

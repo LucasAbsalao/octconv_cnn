@@ -4,7 +4,7 @@ import torch.nn as nn
 
 class DIQA(nn.Module):
 
-    def __init__():
+    def __init__(self):
         super(DIQA, self).__init__()
         self.conv1 = nn.Conv2d(in_channels = 1, 
                             out_channels = 48, 

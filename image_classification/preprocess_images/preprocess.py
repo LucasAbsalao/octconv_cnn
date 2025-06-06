@@ -1,5 +1,4 @@
 import torch 
-import cv2
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
@@ -29,12 +28,12 @@ def normalize_image(image):
     image_gray = transforms.functional.rgb_to_grayscale(image)
     kernel = get_gaussian_kernel(16, 7/6)
     gaussian_blur = F.conv2d(image_gray, weight = kernel.unsqueeze(0).unsqueeze(0), padding = 'same')
-    print(gaussian_blur.size())
+    #print(gaussian_blur.size())
     resized = downupsample(gaussian_blur)
     preprocessed_image = image_gray - resized
-    show_img(image_gray)
-    show_img(resized)
-    show_img(preprocessed_image)
+    # show_img(image_gray)
+    # show_img(resized)
+    # show_img(preprocessed_image)
     return preprocessed_image
 
 def show_img(image):
@@ -47,12 +46,12 @@ def show_img(image):
     plt.imshow(img, cmap = 'gray')
     plt.show()
 
-teste = cv2.imread('bikes.bmp')
-teste = cv2.cvtColor(teste, cv2.COLOR_BGR2RGB)
+# teste = cv2.imread('bikes.bmp')
+# teste = cv2.cvtColor(teste, cv2.COLOR_BGR2RGB)
 
-transform = transforms.Compose([
-    transforms.ToTensor()
-])
-teste_tensor = transform(teste)
-teste_tensor = torch.unsqueeze(teste_tensor,0)
-image = normalize_image(teste_tensor)
+# transform = transforms.Compose([
+#     transforms.ToTensor()
+# ])
+# teste_tensor = transform(teste)
+# teste_tensor = torch.unsqueeze(teste_tensor,0)
+# image = normalize_image(teste_tensor)

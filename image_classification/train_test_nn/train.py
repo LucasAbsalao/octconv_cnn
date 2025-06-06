@@ -84,3 +84,40 @@ def train_val_model(model, epochs, criterion, optimizer, scheduler, device, trai
     plot_loss(all_losses, 'Loss por época')
     plot_loss(val_accuracy, "Accuracy por época")
     return all_losses
+
+def train_val_diqa(model, epochs, criterion, optimizer, scheduler, device, trainloader, valloader):
+    all_losses = []
+    val_accuracy = []
+    for epoch in range(epochs):
+        model.train()
+        losses = []
+        running_loss = 0
+        for i, inp in enumerate(tqdm(trainloader)):
+            inputs, labels = inp
+            inputs, labels = inputs.to(device), labels.to(device)
+            optimizer.zero_grad()
+        
+            outputs = model(inputs,2)
+            loss = criterion(outputs, labels)
+            losses.append(loss.item())
+
+            loss.backward()
+            optimizer.step()
+            
+            running_loss += loss.item()
+
+        print(f'Loss [{epoch+1}, {i}](epoch, minibatch): ', running_loss / 100)
+        running_loss = 0.0
+
+        avg_loss = sum(losses)/len(losses)
+        if scheduler is not None:
+            scheduler.step(avg_loss)
+        all_losses.append(avg_loss)
+
+        correct, total = validate_model(model, valloader, device)
+        val_accuracy.append(100*(correct/total))
+                
+    print('Training Done')
+    plot_loss(all_losses, 'Loss por época')
+    plot_loss(val_accuracy, "Accuracy por época")
+    return all_losses
