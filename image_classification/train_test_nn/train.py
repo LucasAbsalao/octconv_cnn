@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import matplotlib.pyplot as plt
-from .test import validate_model
+from .test import validate_model, validate_model_regression
 from tqdm import tqdm
 
 def train_model(model, epochs, criterion, optimizer, scheduler, device, trainloader):
@@ -85,7 +85,7 @@ def train_val_model(model, epochs, criterion, optimizer, scheduler, device, trai
     plot_loss(val_accuracy, "Accuracy por época")
     return all_losses
 
-def train_val_diqa(model, epochs, criterion, optimizer, scheduler, device, trainloader, valloader):
+def train_val_diqa(model, epochs, criterion, optimizer, device, trainloader, valloader):
     all_losses = []
     val_accuracy = []
     for epoch in range(epochs):
@@ -110,11 +110,9 @@ def train_val_diqa(model, epochs, criterion, optimizer, scheduler, device, train
         running_loss = 0.0
 
         avg_loss = sum(losses)/len(losses)
-        if scheduler is not None:
-            scheduler.step(avg_loss)
         all_losses.append(avg_loss)
 
-        correct, total = validate_model(model, valloader, device)
+        correct, total = validate_model_regression(model, valloader, device)
         val_accuracy.append(100*(correct/total))
                 
     print('Training Done')

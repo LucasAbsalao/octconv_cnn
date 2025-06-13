@@ -1,9 +1,10 @@
 import torch
 import torch.nn.functional as F
 import os
+from PIL import Image
 from torch.utils.data import Dataset
 from preprocess import normalize_image
-from torchvision.io import decode_image
+import torchvision.transforms as transforms
 import pandas as pd
 
 class LIVE(Dataset):
@@ -16,9 +17,11 @@ class LIVE(Dataset):
         return len(self.csv_file)
     
     def __getitem__(self, index):
-        img_path = os.path.join(self.img_dir, self.img_lab.at[index, 'image_path'])
-        image = decode_image(img_path)
-        label = self.csv_file.at(index, 'dmos_reverse_normalized')
+        img_path = os.path.join(self.img_dir, self.csv_file.at[index, 'image_path'])
+        image = Image.open(img_path).convert('RGB')
+        totensor = transforms.ToTensor()
+        image = totensor(image)
+        label = self.csv_file.at[index, 'dmos_reverse_normalized']
         if self.transform:
              image = self.transform(image)
 
@@ -52,3 +55,7 @@ def get_dataset(dataset:str = 'live'):
 
 if __name__ == '__main__':
     a = get_dataset("live")
+    dataloader = torch.utils.data.DataLoader(a, batch_size=4, shuffle= True, num_workers=2)
+    print("loaded")
+    for image, label in dataloader:
+        print(label)

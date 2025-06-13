@@ -14,7 +14,7 @@ def get_gaussian_kernel(kernel_size: int, sigma: float, dtype = torch.float32):
     return kernel/torch.sum(kernel)
 
 def downupsample(img, ratio:float=4):
-    b, c, h, w = img.shape
+    c, h, w = img.shape
     h_new, w_new = h//ratio, w//ratio
 
 
@@ -25,8 +25,10 @@ def downupsample(img, ratio:float=4):
     return up
 
 def normalize_image(image):
+    print(image.size())
     image_gray = transforms.functional.rgb_to_grayscale(image)
-    kernel = get_gaussian_kernel(16, 7/6)
+    print(image_gray.size())
+    kernel = get_gaussian_kernel(17, 7/6)
     gaussian_blur = F.conv2d(image_gray, weight = kernel.unsqueeze(0).unsqueeze(0), padding = 'same')
     #print(gaussian_blur.size())
     resized = downupsample(gaussian_blur)
