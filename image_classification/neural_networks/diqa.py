@@ -80,7 +80,7 @@ class DIQA(nn.Module):
             return e
         else:
             s = self.global_average_pooling(result_conv8)
-            s = s.squeeze(2).squeeze(3)
+            s = s.squeeze(3).squeeze(2)
             s = self.relu(self.fc1(s)) #Autoria própria
             s = self.fc2(s)
             return s

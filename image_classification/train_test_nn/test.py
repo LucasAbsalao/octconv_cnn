@@ -47,7 +47,7 @@ def validate_model_regression(model, valloader, device='cpu', loss = 'mse'):
     with torch.no_grad():
         for (images, labels) in valloader:
             images, labels = images.to(device), labels.to(device)
-            outputs = model(images)
+            outputs = model(images, 2)
 
 
             mse = criterion(outputs.data, labels)

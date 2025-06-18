@@ -95,9 +95,11 @@ def train_val_diqa(model, epochs, criterion, optimizer, device, trainloader, val
         for i, inp in enumerate(tqdm(trainloader)):
             inputs, labels = inp
             inputs, labels = inputs.to(device), labels.to(device)
+            # print(type(inputs), type(labels))
+            # print(device)
             optimizer.zero_grad()
         
-            outputs = model(inputs,2)
+            outputs = model(inputs,2).squeeze(1)
             loss = criterion(outputs, labels)
             losses.append(loss.item())
 

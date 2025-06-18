@@ -27,7 +27,7 @@ def downupsample(img, ratio:float=4):
 def normalize_image(image):
     #print(image.size())
     image_gray = transforms.functional.rgb_to_grayscale(image)
-    print(image_gray.size())
+    #print(image_gray.size())
     kernel = get_gaussian_kernel(17, 7/6)
     gaussian_blur = F.conv2d(image_gray, weight = kernel.unsqueeze(0).unsqueeze(0), padding = 'same')
     #print(gaussian_blur.size())

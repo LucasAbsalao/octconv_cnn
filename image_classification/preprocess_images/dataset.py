@@ -22,6 +22,7 @@ class LIVE(Dataset):
         totensor = transforms.ToTensor()
         image = totensor(image)
         label = self.csv_file.at[index, 'dmos_reverse_normalized']
+        label = torch.tensor(label, dtype=torch.float32)
         if self.transform:
              image = self.transform(image)
 

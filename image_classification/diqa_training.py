@@ -11,19 +11,19 @@ def execute_diqa(epochs:int):
     live_dataset = get_dataset('live', 'data/Live_IQA_release2/')
     train_dataset, test_dataset = random_split(live_dataset, [0.8,0.2]) 
 
-    trainloader = DataLoader(train_dataset, batch_size = 32, shuffle = True, num_workers=2, collate_fn=custom_collate_fn)
-    valloader = DataLoader(test_dataset, batch_size = 32, shuffle = True, num_workers = 2, collate_fn=custom_collate_fn)
+    trainloader = DataLoader(train_dataset, batch_size = 1, shuffle = True, num_workers=2)
+    valloader = DataLoader(test_dataset, batch_size = 1, shuffle = True, num_workers = 2)
 
 
     torch.cuda.init()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     torch.cuda.empty_cache()
     
-    model = DIQA()
+    model = DIQA().to(device)
     optimizer = torch.optim.NAdam(model.parameters(), lr = 2 * 10 ** -4)
     criterion = torch.nn.MSELoss()
 
-    print(torch.cuda.memory_summary(device=None, abbreviated=False))
+    #print(torch.cuda.memory_summary(device=None, abbreviated=False))
 
     all_losses = train_val_diqa(model, epochs, criterion, optimizer, device, trainloader, valloader)
 
