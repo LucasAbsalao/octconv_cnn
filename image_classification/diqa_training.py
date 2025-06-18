@@ -1,5 +1,5 @@
 import torch
-from preprocess_images.dataset import get_dataset
+from preprocess_images.dataset import get_dataset, custom_collate_fn
 from torch.utils.data import random_split, DataLoader
 from neural_networks.diqa import DIQA
 from train_test_nn.train import train_val_diqa
@@ -8,11 +8,11 @@ from train_test_nn.test import validate_model_regression
 
 def execute_diqa(epochs:int):
 
-    live_dataset = get_dataset('live')
+    live_dataset = get_dataset('live', 'data/Live_IQA_release2/')
     train_dataset, test_dataset = random_split(live_dataset, [0.8,0.2]) 
 
-    trainloader = DataLoader(train_dataset, batch_size = 64, shuffle = True, num_workers=2)
-    valloader = DataLoader(test_dataset, batch_size = 64, shuffle = True, num_workers = 2)
+    trainloader = DataLoader(train_dataset, batch_size = 32, shuffle = True, num_workers=2, collate_fn=custom_collate_fn)
+    valloader = DataLoader(test_dataset, batch_size = 32, shuffle = True, num_workers = 2, collate_fn=custom_collate_fn)
 
 
     torch.cuda.init()

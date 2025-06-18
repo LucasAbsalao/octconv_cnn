@@ -3,11 +3,11 @@ import torch.nn.functional as F
 import os
 from PIL import Image
 from torch.utils.data import Dataset
-from preprocess import normalize_image
+from .preprocess import normalize_image
 import torchvision.transforms as transforms
 import pandas as pd
 
-class LIVE(Dataset):
+class LIVE(Dataset):    
     def __init__(self, csv_file, img_dir, transform=None):
             self.csv_file = csv_file
             self.img_dir = img_dir
@@ -25,11 +25,22 @@ class LIVE(Dataset):
         if self.transform:
              image = self.transform(image)
 
-        return image,label
+        return (image,label)
 
-def get_dataset(dataset:str = 'live'):
+def custom_collate_fn(batch):
+    image = [data[0] for data in batch]
+    labels = [data[1] for data in batch]
+    labels = torch.tensor(labels)
+    return [image,labels]
+
+
+
+def get_dataset(dataset:str = 'live', path=None):
     if dataset == 'live':
-        root_path = '../data/Live_IQA_release2/'
+        if path is None:
+            root_path = '../data/Live_IQA_release2/'
+        else:
+            root_path = path
         csv_path = root_path + 'my_dmos_norm.csv'
 
         # Create the dataset
@@ -55,7 +66,7 @@ def get_dataset(dataset:str = 'live'):
 
 if __name__ == '__main__':
     a = get_dataset("live")
-    dataloader = torch.utils.data.DataLoader(a, batch_size=4, shuffle= True, num_workers=2)
+    dataloader = torch.utils.data.DataLoader(a, batch_size=2, shuffle= True, collate_fn=custom_collate_fn, num_workers=2)
     print("loaded")
     for image, label in dataloader:
-        print(label)
+        print(image.size)

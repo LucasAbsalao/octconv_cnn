@@ -25,7 +25,7 @@ def downupsample(img, ratio:float=4):
     return up
 
 def normalize_image(image):
-    print(image.size())
+    #print(image.size())
     image_gray = transforms.functional.rgb_to_grayscale(image)
     print(image_gray.size())
     kernel = get_gaussian_kernel(17, 7/6)
@@ -40,6 +40,7 @@ def normalize_image(image):
 
 def show_img(image):
     if len(image.size()) == 4:
+
         img = image[0]
     else:
         img = image
