@@ -1,5 +1,5 @@
 import torch
-from preprocess_images.dataset import get_dataset, custom_collate_fn
+from preprocess_images.dataset import get_dataset
 from torch.utils.data import random_split, DataLoader
 from neural_networks.diqa import DIQA
 from train_test_nn.train import train_val_diqa
@@ -20,7 +20,7 @@ def execute_diqa(epochs:int):
     torch.cuda.empty_cache()
     
     model = DIQA().to(device)
-    optimizer = torch.optim.NAdam(model.parameters(), lr = 2 * 10 ** -4)
+    optimizer = torch.optim.NAdam(model.parameters(), lr = 2 * 10 ** -4, momentum_decay=0.9)
     criterion = torch.nn.MSELoss()
 
     #print(torch.cuda.memory_summary(device=None, abbreviated=False))
@@ -30,7 +30,8 @@ def execute_diqa(epochs:int):
     torch.save(model.state_dict(), f"trained_models/model_diqa_{epochs}.pth")
     print("Saved PyTorch Model State to model.pth")
 
-    mse_total, total = validate_model_regression(model, valloader,device,)
+    mse_total, total = validate_model_regression(model, valloader, device, coefficients=["PLCC","SRCC"])
+
     return model
 
-model = execute_diqa(1)
+model = execute_diqa(10)

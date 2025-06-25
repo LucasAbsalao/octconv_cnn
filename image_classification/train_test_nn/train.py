@@ -113,9 +113,8 @@ def train_val_diqa(model, epochs, criterion, optimizer, device, trainloader, val
 
         avg_loss = sum(losses)/len(losses)
         all_losses.append(avg_loss)
-
-        correct, total = validate_model_regression(model, valloader, device)
-        val_accuracy.append(100*(correct/total))
+        mse_total, total = validate_model_regression(model, valloader, device)
+        val_accuracy.append(100*(mse_total.cpu()/total))
                 
     print('Training Done')
     plot_loss(all_losses, 'Loss por época')

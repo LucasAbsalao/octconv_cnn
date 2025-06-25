@@ -1,11 +1,7 @@
 import torch
 import torchvision
 import torchvision.transforms as transforms
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-
-from neural_networks.resnet import Bottleneck, ResNet50, ResNet
+from neural_networks.resnet import ResNet50
 from neural_networks.OctResNet import OctResNet50, OctResNet18
 
 transform_afhq = transforms.Compose([
@@ -16,7 +12,7 @@ transform_afhq = transforms.Compose([
 ])
 
 net = ResNet50(10).to('cuda')
-net.load_state_dict(torch.load(f"model_resnet_200.pth", weights_only = True))
+net.load_state_dict(torch.load("model_resnet_200.pth", weights_only = True))
 
 val = torchvision.datasets.ImageFolder('data/afhq/val', transform=transform_afhq)
 

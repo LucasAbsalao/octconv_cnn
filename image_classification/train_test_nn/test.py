@@ -4,6 +4,7 @@ import torchvision.models as models
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy import stats
 
 from torch.utils.flop_counter import FlopCounterMode
 from fvcore.nn import FlopCountAnalysis
@@ -38,24 +39,45 @@ def validate_model(model, valloader, device='cpu', num_classes = 0, labels_name 
 
     return correct, total
 
-def validate_model_regression(model, valloader, device='cpu', loss = 'mse'):
+def validate_model_regression(model, valloader, device='cpu', loss = 'mse', coefficients = None):
     if loss == 'mse':
         criterion = torch.nn.MSELoss()
     mse_total = 0
     total = 0
+    y_pred = []
+    y_val = []
     model.eval()
     with torch.no_grad():
         for (images, labels) in valloader:
             images, labels = images.to(device), labels.to(device)
-            outputs = model(images, 2)
+            outputs = model(images, 2).squeeze(1)
 
 
             mse = criterion(outputs.data, labels)
             total += labels.size(0)
             mse_total += mse
 
+            y_val.extend(labels)
+            y_pred.extend(outputs.data)
 
-    print(f"Accuracy on {len(valloader) * valloader.batch_size} val images: {mse/total}")
+    print(f"Error on {len(valloader) * valloader.batch_size} val images: {mse_total/total}")
+
+    if coefficients is not None:
+        y_pred_gpu = torch.stack(y_pred,dim=0)
+        y_val_gpu = torch.stack(y_val, dim=0)
+        y_pred = y_pred_gpu.cpu()
+        y_val = y_val_gpu.cpu()
+
+        for coefficient in coefficients:
+            if coefficient == 'PLCC':
+                plcc = stats.pearsonr(y_pred, y_val)[0]
+                print(f"PLCC: {plcc:.4f}")
+            elif coefficient == 'SRCC':
+                srcc = stats.spearmanr(y_pred, y_val)[0]
+                print(f"SRCC: {srcc:.4f}")
+            elif coefficient == 'KRCC':
+                krcc = stats.stats.kenalltau(y_pred,y_val)[0]
+                print(f"KRCC: {krcc:.4f}")
 
     return mse_total, total
 
