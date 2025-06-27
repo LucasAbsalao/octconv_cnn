@@ -68,16 +68,22 @@ def validate_model_regression(model, valloader, device='cpu', loss = 'mse', coef
         y_pred = y_pred_gpu.cpu()
         y_val = y_val_gpu.cpu()
 
+        dict_metrics = {}
+
         for coefficient in coefficients:
             if coefficient == 'PLCC':
                 plcc = stats.pearsonr(y_pred, y_val)[0]
+                dict_metrics['PLCC'] = plcc
                 print(f"PLCC: {plcc:.4f}")
             elif coefficient == 'SRCC':
                 srcc = stats.spearmanr(y_pred, y_val)[0]
+                dict_metrics['SRCC'] = srcc
                 print(f"SRCC: {srcc:.4f}")
             elif coefficient == 'KRCC':
                 krcc = stats.stats.kenalltau(y_pred,y_val)[0]
+                dict_metrics['KRCC'] = krcc
                 print(f"KRCC: {krcc:.4f}")
+        return dict_metrics, mse_total, total
 
     return mse_total, total
 

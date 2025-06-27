@@ -46,7 +46,18 @@ def show_img(image):
         img = image
     print(img.size())
     img = torch.permute(img, (1,2,0))
-    plt.imshow(img, cmap = 'gray')
+
+    min_val = torch.min(img)
+    max_val = torch.max(img)
+
+    # 2. Normaliza o tensor para o intervalo [0, 1]
+    # Adicionamos uma pequena constante (epsilon) para evitar divisão por zero se a imagem for toda de uma cor só
+    img_normalized = (img - min_val) / (max_val - min_val + 1e-5)
+
+    # 3. Escala para o intervalo [0, 255] e converte para o tipo uint8
+    img_display = (img_normalized * 255).to(torch.uint8)
+
+    plt.imshow(img_display, cmap = 'gray')
     plt.show()
 
 # teste = cv2.imread('bikes.bmp')

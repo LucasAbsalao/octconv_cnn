@@ -94,7 +94,7 @@ def train_val_diqa(model, epochs, criterion, optimizer, device, trainloader, val
         running_loss = 0
         for i, inp in enumerate(tqdm(trainloader)):
             inputs, labels = inp
-            inputs, labels = inputs.to(device), labels.to(device)
+            inputs, labels = inputs.to(device, non_blocking=True), labels.to(device, non_blocking=True)
             # print(type(inputs), type(labels))
             # print(device)
             optimizer.zero_grad()
@@ -114,7 +114,7 @@ def train_val_diqa(model, epochs, criterion, optimizer, device, trainloader, val
         avg_loss = sum(losses)/len(losses)
         all_losses.append(avg_loss)
         mse_total, total = validate_model_regression(model, valloader, device)
-        val_accuracy.append(100*(mse_total.cpu()/total))
+        val_accuracy.append(mse_total.cpu()/total)
                 
     print('Training Done')
     plot_loss(all_losses, 'Loss por época')
