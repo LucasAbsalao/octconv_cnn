@@ -1,0 +1,5 @@
+Média do SRCC - -0.1546 e desvio padrão - 0.0822
+Valores de SRCC - [-0.07232763728377616, -0.23680010254934625]
+
+Média do PLCC - 0.2061 e desvio padrão de 0.0184
+Valores de PLCC - [0.1877864532939136, 0.22451070446906385]

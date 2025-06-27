@@ -150,7 +150,7 @@ def get_flops_ptflops(model, input, device = 'cpu'):
     print("Tipo do tensor para calcular o flop: ", input.type())
     print("Tamanho do tensor para calcular o flop: ", tuple(input.size())[1:])
     
-    with torch.cuda.device(0):
+    with torch.cuda.device(device.index if device.index is not None else device):
         flops, params = get_model_complexity_info(model, tuple(input.size()[1:]), as_strings = True)
         print(f'FLOPs: {flops}')
         print(f"Params {params}")

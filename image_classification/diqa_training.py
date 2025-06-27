@@ -22,11 +22,9 @@ def execute_diqa(epochs:int):
 
 
     torch.cuda.init()
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     torch.cuda.empty_cache()
 
-    print(device.index)
-    
     model = DIQA().to(device)
     optimizer = torch.optim.NAdam(model.parameters(), lr = 2 * 10 ** -4, momentum_decay=0.9)
     criterion = torch.nn.MSELoss()
@@ -35,14 +33,13 @@ def execute_diqa(epochs:int):
 
     all_losses = train_val_diqa(model, epochs, criterion, optimizer, device, trainloader, valloader)
 
-    torch.save(model.state_dict(), f"trained_models/model_diqa_{epochs}.pth")
-    print("Saved PyTorch Model State to model.pth")
-
     dict_metrics, mse_total, total = validate_model_regression(model, valloader, device, coefficients=["PLCC","SRCC"])
 
     return model, dict_metrics
 
-def image_IQA(model, image):
+def image_IQA(model, image_path):
+    image = Image.open(image_path).convert('RGB')
+
     torch.cuda.init()
     device = torch.device('cpu')
     torch.cuda.empty_cache()
@@ -64,14 +61,20 @@ if __name__ == '__main__':
     # model.load_state_dict(torch.load("trained_models/model_diqa_40.pth", weights_only=True))
 
     # img_path = "../image/arvores.jpg"
-    # image = Image.open(img_path).convert('RGB')
     # quality = image_IQA(model, image)
     # print(quality)
+    name = "DIQA_standard"
+    epochs = 40
+    executions = 1
+
     srcc_list, plcc_list = [], []
-    for i in range(5):
+    for i in range(2):
         model, metrics = execute_diqa(1)
         srcc_list.append(metrics['SRCC'])
         plcc_list.append(metrics['PLCC'])
+        if metrics['SRCC'] >= max(srcc_list):
+            torch.save(model.state_dict(), f"trained_models/model_diqa_{epochs}.pth")
+            print(f"Saved PyTorch Model State to model on execution {i}.pth")
 
     plt.plot(srcc_list,color='red', label='SRCC')
     plt.plot(plcc_list, color='blue', label='PLCC')
@@ -84,4 +87,10 @@ if __name__ == '__main__':
     plt.legend()
     plt.xlabel("Execuções")
     plt.title("Valores de SRCC e PLCC para várias execuções")
-    plt.show()
+    plt.savefig(f"stats/graphs/{name}.png",bbox_inches = 'tight')
+
+    with open(f"stats/{name}.txt", "w") as f:
+        f.write(f"Média do SRCC - {np.mean(srcc_list):.4f} e desvio padrão - {np.std(srcc_list):.4f}\n")
+        f.write(f"Valores de SRCC - {srcc_list}\n\n")
+        f.write(f"Média do PLCC - {np.mean(plcc_list):.4f} e desvio padrão de {np.std(plcc_list):.4f}\n")
+        f.write(f"Valores de PLCC - {plcc_list}\n")

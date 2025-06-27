@@ -85,7 +85,7 @@ def train_val_model(model, epochs, criterion, optimizer, scheduler, device, trai
     plot_loss(val_accuracy, "Accuracy por época")
     return all_losses
 
-def train_val_diqa(model, epochs, criterion, optimizer, device, trainloader, valloader):
+def train_val_diqa(model, epochs, criterion, optimizer, device, trainloader, valloader, plot=False):
     all_losses = []
     val_accuracy = []
     for epoch in range(epochs):
@@ -117,6 +117,7 @@ def train_val_diqa(model, epochs, criterion, optimizer, device, trainloader, val
         val_accuracy.append(mse_total.cpu()/total)
                 
     print('Training Done')
-    plot_loss(all_losses, 'Loss por época')
-    plot_loss(val_accuracy, "Accuracy por época")
+    if plot:
+        plot_loss(all_losses, 'Loss por época')
+        plot_loss(val_accuracy, "MSE por época na validação")
     return all_losses
