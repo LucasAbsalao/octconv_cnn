@@ -8,6 +8,7 @@ import numpy as np
 from preprocess_images.dataset import get_dataset
 from preprocess_images.preprocess import normalize_image
 from neural_networks.diqa import DIQA
+from neural_networks.octdiqa import OctDIQA
 from train_test_nn.train import train_val_diqa
 from train_test_nn.test import validate_model_regression
 
@@ -25,11 +26,11 @@ def execute_diqa(epochs:int):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     torch.cuda.empty_cache()
 
-    model = DIQA().to(device)
+    model = OctDIQA().to(device)
     optimizer = torch.optim.NAdam(model.parameters(), lr = 2 * 10 ** -4, momentum_decay=0.9)
     criterion = torch.nn.MSELoss()
 
-    #print(torch.cuda.memory_summary(device=None, abbreviated=False))
+    print(torch.cuda.memory_summary(device=None, abbreviated=False))
 
     all_losses = train_val_diqa(model, epochs, criterion, optimizer, device, trainloader, valloader)
 
@@ -69,7 +70,7 @@ if __name__ == '__main__':
 
     srcc_list, plcc_list = [], []
     for i in range(2):
-        model, metrics = execute_diqa(1)
+        model, metrics = execute_diqa(executions)
         srcc_list.append(metrics['SRCC'])
         plcc_list.append(metrics['PLCC'])
         if metrics['SRCC'] >= max(srcc_list):

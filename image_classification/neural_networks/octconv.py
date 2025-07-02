@@ -37,7 +37,6 @@ class OctaveConv(nn.Module):
                                   padding = padding, dilation = dilation, groups=math.ceil(groups - alpha_in * groups), bias = bias)
         
     def forward(self, x):
-        file = open("log.txt", "a")
     
         x_h, x_l = x if type(x) is tuple else (x, None)
 
@@ -81,7 +80,21 @@ class Conv_BN(nn.Module):
         x_h = self.bn_h(x_h)
         x_l = self.bn_l(x_l) if x_l is not None else None
         return x_h, x_l
+    
+class OctaveConv_ACT(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, alpha_in = 0.5, alpha_out = 0.5, stride = 1, padding = 0, dilation = 1,
+                groups=1, bias = False, activation_layer = nn.ReLU):
+        super(OctaveConv_ACT, self).__init__()
+        self.conv = OctaveConv(in_channels, out_channels, kernel_size, alpha_in, alpha_out, stride, padding, dilation, groups, bias)
 
+        self.act = activation_layer(inplace = True)
+
+    def forward(self, x):
+        x_h, x_l = self.conv(x)
+        x_h = self.act(x_h)
+        x_l = self.act(x_l) if x_l is not None else None
+        return x_h, x_l
+    
 class Conv_BN_ACT(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, alpha_in = 0.5, alpha_out = 0.5, stride = 1, padding = 0, dilation = 1,
                 groups=1, bias = False, norm_layer = nn.BatchNorm2d, activation_layer = nn.ReLU):
