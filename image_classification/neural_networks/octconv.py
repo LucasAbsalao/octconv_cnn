@@ -56,7 +56,11 @@ class OctaveConv(nn.Module):
             else:
                 x_l2h = self.conv_l2h(x_l)
                 x_l2h = self.upsample(x_l2h) if self.stride == 1 else x_l2h
-        
+                #print("Testes ", x_l2h.size(), x_h2h.size())
+                if x_l2h.size()[-1] != x_h2h.size()[-1]:
+                    x_l2h = nn.functional.pad(x_l2h, (0,1), mode='constant', value=0)
+                if x_l2h.size()[-2] != x_h2h.size()[-2]:
+                    x_l2h = nn.functional.pad(x_l2h, (0,0,0,1), mode='constant', value=0)
                 x_h = x_l2h + x_h2h
                 x_l = x_h2l + x_l2l if x_h2l is not None and x_l2l is not None else None
         

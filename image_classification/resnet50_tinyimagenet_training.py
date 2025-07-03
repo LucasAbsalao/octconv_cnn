@@ -35,7 +35,7 @@ def execute_model(type_model:str, epochs:int, dataset: str, num_classes: int, fl
     # -------------------------------------- Treinamento -----------------------------------------------
     torch.cuda.init()
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print("Device used: ", device)
     torch.cuda.empty_cache()
 

@@ -29,7 +29,7 @@ testloader = torch.utils.data.DataLoader(test, batch_size=128, shuffle=False, nu
 
 classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 net = OctResNet18(num_classes = 10).to(device)
 

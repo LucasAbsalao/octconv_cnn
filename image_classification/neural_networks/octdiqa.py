@@ -25,7 +25,7 @@ class OctDIQA(nn.Module):
         self.conv1 = OctaveConv_ACT(in_channels = 1, 
                             out_channels = 48, 
                             kernel_size = 3,
-                            alpha_in = self.alpha,
+                            alpha_in = 0,
                             alpha_out = self.alpha, 
                             stride = 1, 
                             padding = 1)
@@ -82,14 +82,14 @@ class OctDIQA(nn.Module):
                                out_channels = 128,
                                kernel_size = 3,
                                alpha_in = self.alpha,
-                               alpha_out = self.alpha,
+                               alpha_out = 0,
                                stride = 1,
                                padding = 1)
 
         self.conv9 = OctaveConv_ACT(in_channels = 128,
                                out_channels = 1,
                                kernel_size = 1,
-                               alpha_in = self.alpha,
+                               alpha_in = 0,
                                alpha_out = 0,
                                stride = 2,
                                padding = 1)
@@ -101,14 +101,22 @@ class OctDIQA(nn.Module):
 
     def forward(self, x, mode=2):
         x_h, x_l = self.conv1(x)
+        #print("conv1: ", x_h.size(), x_l.size() if x_l is not None else None)
         x_h, x_l = self.conv2((x_h,x_l))
+        #print("conv2: ", x_h.size(), x_l.size() if x_l is not None else None)
         x_h, x_l = self.conv3((x_h,x_l))
+        #print("conv3: ", x_h.size(), x_l.size() if x_l is not None else None)
         x_h, x_l = self.conv4((x_h,x_l))
+        #print("conv4: ", x_h.size(), x_l.size() if x_l is not None else None)
         x_h, x_l = self.conv5((x_h,x_l))
+        #print("conv5: ", x_h.size(), x_l.size() if x_l is not None else None)
         x_h, x_l = self.conv6((x_h,x_l))
+        #print("conv6: ", x_h.size(), x_l.size() if x_l is not None else None)
         x_h, x_l = self.conv7((x_h,x_l))
+        #print("conv7: ", x_h.size(), x_l.size() if x_l is not None else None)
         x_h_8, x_l_8 = self.conv8((x_h, x_l))
-
+        #print("conv8: ", x_h_8.size(), x_l_8.size() if x_l_8 is not None else None)
+        #print()
         if mode == 1:
             e = self.conv9(x_h_8)
             return e
@@ -119,4 +127,3 @@ class OctDIQA(nn.Module):
             s = self.relu(self.fc1(s))
             s = self.fc2(s)
             return s
-#rsync -avz /Live_IQA_release2 softex@192.168.155.10:~/softex/Documents/lsa4/octconv_cnn/image_classification/data

@@ -64,13 +64,13 @@ if __name__ == '__main__':
     # img_path = "../image/arvores.jpg"
     # quality = image_IQA(model, image)
     # print(quality)
-    name = "DIQA_standard"
+    name = "OctDIQA"
     epochs = 40
-    executions = 1
+    executions = 5
 
     srcc_list, plcc_list = [], []
-    for i in range(2):
-        model, metrics = execute_diqa(executions)
+    for i in range(executions):
+        model, metrics = execute_diqa(epochs)
         srcc_list.append(metrics['SRCC'])
         plcc_list.append(metrics['PLCC'])
         if metrics['SRCC'] >= max(srcc_list):
