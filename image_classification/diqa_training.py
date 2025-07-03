@@ -74,7 +74,7 @@ if __name__ == '__main__':
         srcc_list.append(metrics['SRCC'])
         plcc_list.append(metrics['PLCC'])
         if metrics['SRCC'] >= max(srcc_list):
-            torch.save(model.state_dict(), f"trained_models/model_diqa_{epochs}.pth")
+            torch.save(model.state_dict(), f"trained_models/model_{name}_{epochs}.pth")
             print(f"Saved PyTorch Model State to model on execution {i}.pth")
 
     plt.plot(srcc_list,color='red', label='SRCC')
