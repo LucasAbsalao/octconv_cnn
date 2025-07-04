@@ -13,13 +13,20 @@ from train_test_nn.train import train_val_diqa
 from train_test_nn.test import validate_model_regression
 
 
-def execute_diqa(epochs:int):
+def execute_diqa(epochs:int, dataset_name:str, batch_size:int=1):
+    #O batch size não influencia o live, pois, como as imagens possuem tamanho diferente, é mais difícil de fazer os batchs (teria que mexer na função sampler)
+    if dataset_name=='live':
+        dataset = get_dataset('live', 'data/Live_IQA_release2/')
+        batch_size = 1
+    elif dataset_name=='koniq-10k':
+        dataset = get_dataset('koniq-10k', 'data/KonIQ-10k/', 'data/KonIQ-10k/512x384/')
+    else:
+        raise Exception("não tem dataset")
+    
+    train_dataset, test_dataset = random_split(dataset, [0.8,0.2]) 
 
-    live_dataset = get_dataset('live', 'data/Live_IQA_release2/')
-    train_dataset, test_dataset = random_split(live_dataset, [0.8,0.2]) 
-
-    trainloader = DataLoader(train_dataset, batch_size = 1, shuffle = True, num_workers=2, pin_memory=True)
-    valloader = DataLoader(test_dataset, batch_size = 1, shuffle = True, num_workers = 2, pin_memory=True)
+    trainloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True, num_workers=2, pin_memory=True)
+    valloader = DataLoader(test_dataset, batch_size = batch_size, shuffle = True, num_workers = 2, pin_memory=True)
 
 
     torch.cuda.init()
@@ -36,7 +43,7 @@ def execute_diqa(epochs:int):
 
     dict_metrics, mse_total, total = validate_model_regression(model, valloader, device, coefficients=["PLCC","SRCC"])
 
-    return model, dict_metrics
+    return model, dict_metrics, all_losses
 
 def execute_diqa_koniq(epochs:int):
 
@@ -80,28 +87,7 @@ def image_IQA(model, image_path):
 
     return quality
     
-
-
-if __name__ == '__main__':
-    # model = DIQA()
-    # model.load_state_dict(torch.load("trained_models/model_diqa_40.pth", weights_only=True))
-
-    # img_path = "../image/arvores.jpg"
-    # quality = image_IQA(model, image)
-    # print(quality)
-    name = "DIQA_koniq"
-    epochs = 1
-    executions = 1
-
-    srcc_list, plcc_list = [], []
-    for i in range(executions):
-        model, metrics = execute_diqa_koniq(epochs)
-        srcc_list.append(metrics['SRCC'])
-        plcc_list.append(metrics['PLCC'])
-        if metrics['SRCC'] >= max(srcc_list):
-            torch.save(model.state_dict(), f"trained_models/model_{name}_{epochs}.pth")
-            print(f"Saved PyTorch Model State to model on execution {i}.pth")
-
+def plot_srcc_list(srcc_list:list, plcc_list:list, name:str):
     plt.plot(srcc_list,color='red', label='SRCC')
     plt.plot(plcc_list, color='blue', label='PLCC')
     plt.axhline(np.mean(srcc_list), color='orange', linestyle='--', label='Média de SRCC')
@@ -115,8 +101,36 @@ if __name__ == '__main__':
     plt.title("Valores de SRCC e PLCC para várias execuções")
     plt.savefig(f"stats/graphs/{name}.png",bbox_inches = 'tight')
 
+def write_metrics_txt(srcc_list:list, plcc_list:list, all_losses:list, name:str):
     with open(f"stats/{name}.txt", "w") as f:
         f.write(f"Média do SRCC - {np.mean(srcc_list):.4f} e desvio padrão - {np.std(srcc_list):.4f}\n")
         f.write(f"Valores de SRCC - {srcc_list}\n\n")
         f.write(f"Média do PLCC - {np.mean(plcc_list):.4f} e desvio padrão de {np.std(plcc_list):.4f}\n")
         f.write(f"Valores de PLCC - {plcc_list}\n")
+        for losses in all_losses:
+            f.write(f"Evolução da loss: {losses}\n")
+
+if __name__ == '__main__':
+    # model = DIQA()
+    # model.load_state_dict(torch.load("trained_models/model_diqa_40.pth", weights_only=True))
+
+    # img_path = "../image/arvores.jpg"
+    # quality = image_IQA(model, image)
+    # print(quality)
+    name = "DIQA_koniq"
+    epochs = 1
+    executions = 1
+
+    srcc_list, plcc_list, loss_list = [], [], []
+    for i in range(executions):
+        model, metrics, all_losses = execute_diqa_koniq(epochs)
+        srcc_list.append(metrics['SRCC'])
+        plcc_list.append(metrics['PLCC'])
+        loss_list.append(all_losses)
+        if metrics['SRCC'] >= max(srcc_list):
+            torch.save(model.state_dict(), f"trained_models/model_{name}_{epochs}.pth")
+            print(f"Saved PyTorch Model State to model on execution {i}.pth")
+
+    plot_srcc_list(srcc_list, plcc_list, name)
+
+    write_metrics_txt(srcc_list, plcc_list, name)

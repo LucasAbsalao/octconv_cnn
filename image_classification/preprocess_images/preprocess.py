@@ -24,14 +24,17 @@ def downupsample(img, ratio:float=4):
     up = upsample(down)
     return up
 
+def gaussian_blur(image, kernel_size: int, sigma: float):
+    gaussian_blur_transform = transforms.GaussianBlur(kernel_size,sigma)
+    return gaussian_blur_transform(image)
+
 def normalize_image(image):
-    #print(image.size())
+
     image_gray = transforms.functional.rgb_to_grayscale(image)
-    #print(image_gray.size())
-    kernel = get_gaussian_kernel(17, 7/6)
-    gaussian_blur = F.conv2d(image_gray, weight = kernel.unsqueeze(0).unsqueeze(0), padding = 'same')
-    #print(gaussian_blur.size())
-    resized = downupsample(gaussian_blur)
+    # kernel = get_gaussian_kernel(17, 7/6)
+    # gaussian_blur = F.conv2d(image_gray, weight = kernel.unsqueeze(0).unsqueeze(0), padding = 'same')
+    gaussian_blurred = gaussian_blur(image_gray, 17, 7/6)
+    resized = downupsample(gaussian_blurred)
     preprocessed_image = image_gray - resized
     # show_img(image_gray)
     # show_img(resized)
