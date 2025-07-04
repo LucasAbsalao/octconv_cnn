@@ -38,6 +38,31 @@ def execute_diqa(epochs:int):
 
     return model, dict_metrics
 
+def execute_diqa_koniq(epochs:int):
+
+    live_dataset = get_dataset('koniq-10k', 'data/KonIQ-10k/', 'data/KonIQ-10k/512x384/')
+    train_dataset, test_dataset = random_split(live_dataset, [0.8,0.2]) 
+
+    trainloader = DataLoader(train_dataset, batch_size = 4, shuffle = True, num_workers=2, pin_memory=True)
+    valloader = DataLoader(test_dataset, batch_size = 4, shuffle = True, num_workers = 2, pin_memory=True)
+
+
+    torch.cuda.init()
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    torch.cuda.empty_cache()
+
+    model = DIQA().to(device)
+    optimizer = torch.optim.NAdam(model.parameters(), lr = 2 * 10 ** -4, momentum_decay=0.9)
+    criterion = torch.nn.MSELoss()
+
+    print(torch.cuda.memory_summary(device=None, abbreviated=False))
+
+    all_losses = train_val_diqa(model, epochs, criterion, optimizer, device, trainloader, valloader)
+
+    dict_metrics, mse_total, total = validate_model_regression(model, valloader, device, coefficients=["PLCC","SRCC"])
+
+    return model, dict_metrics
+
 def image_IQA(model, image_path):
     image = Image.open(image_path).convert('RGB')
 
@@ -64,13 +89,13 @@ if __name__ == '__main__':
     # img_path = "../image/arvores.jpg"
     # quality = image_IQA(model, image)
     # print(quality)
-    name = "OctDIQA"
-    epochs = 40
-    executions = 5
+    name = "DIQA_koniq"
+    epochs = 1
+    executions = 1
 
     srcc_list, plcc_list = [], []
     for i in range(executions):
-        model, metrics = execute_diqa(epochs)
+        model, metrics = execute_diqa_koniq(epochs)
         srcc_list.append(metrics['SRCC'])
         plcc_list.append(metrics['PLCC'])
         if metrics['SRCC'] >= max(srcc_list):

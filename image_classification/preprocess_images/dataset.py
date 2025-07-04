@@ -27,6 +27,27 @@ class LIVE(Dataset):
              image = self.transform(image)
 
         return (image,label)
+    
+class KonIQ(Dataset):    
+    def __init__(self, csv_file, img_dir, transform=None):
+            self.csv_file = csv_file
+            self.img_dir = img_dir
+            self.transform = transform
+
+    def __len__(self):
+        return len(self.csv_file)
+    
+    def __getitem__(self, index):
+        img_path = os.path.join(self.img_dir, self.csv_file.at[index, 'image_name'])
+        image = Image.open(img_path).convert('RGB')
+        totensor = transforms.ToTensor()
+        image = totensor(image)
+        label = self.csv_file.at[index, 'MOS']
+        label = torch.tensor(label, dtype=torch.float32)
+        if self.transform:
+             image = self.transform(image)
+
+        return (image,label)
 
 def custom_collate_fn(batch):
     image = [data[0] for data in batch]
@@ -36,7 +57,7 @@ def custom_collate_fn(batch):
 
 
 
-def get_dataset(dataset:str = 'live', path=None):
+def get_dataset(dataset:str = 'live', path:str = None, img_path:str = None):
     if dataset == 'live':
         if path is None:
             root_path = '../data/Live_IQA_release2/'
@@ -44,6 +65,7 @@ def get_dataset(dataset:str = 'live', path=None):
             root_path = path
         csv_path = root_path + 'my_dmos_norm.csv'
 
+        print(os.listdir('../'))
         # Create the dataset
         dataframe = pd.read_csv(csv_path, sep=';')
         dataframe.pop('distorcion')
@@ -57,13 +79,26 @@ def get_dataset(dataset:str = 'live', path=None):
         # target = dataframe.pop('dmos_reverse_normalized')
         # dataframe['image_path'] = dataframe['image_path'].apply(lambda x: root_path + x)
 
-        live_dataset = LIVE(dataframe, root_path, normalize_image)
-
-        return live_dataset
+        dataset_final = LIVE(dataframe, root_path, normalize_image)
     
+    elif dataset == 'koniq-10k':
+        if path is None:
+            root_path = '../data/KonIQ-10k/'
+            img_path = '../data/KonIQ-10k/512x384/'
+        else:
+            root_path = path
+            img_path = img_path
+
+        csv_path = root_path + 'koniq10k_scores_and_distributions.csv'
+
+        dataframe = pd.read_csv(csv_path)
+        dataframe = dataframe[['image_name', 'MOS']]
+
+        dataset_final = KonIQ(dataframe, img_path, normalize_image)
     else:
         print("Ainda não existe suporte para esse dataset :(")
 
+    return dataset_final
 
 if __name__ == '__main__':
     a = get_dataset("live")
