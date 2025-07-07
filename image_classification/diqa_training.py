@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     srcc_list, plcc_list, loss_list = [], [], []
     for i in range(executions):
-        model, metrics, all_losses = execute_diqa_koniq(epochs)
+        model, metrics, all_losses = execute_diqa(epochs, 'koniq-10k', 32)
         srcc_list.append(metrics['SRCC'])
         plcc_list.append(metrics['PLCC'])
         loss_list.append(all_losses)
