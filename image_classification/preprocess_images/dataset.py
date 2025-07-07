@@ -92,7 +92,8 @@ def get_dataset(dataset:str = 'live', path:str = None, img_path:str = None):
         csv_path = root_path + 'koniq10k_scores_and_distributions.csv'
 
         dataframe = pd.read_csv(csv_path)
-        dataframe = dataframe[['image_name', 'MOS']]
+        dataframe = dataframe[['image_name', 'MOS_zscore']]
+        dataframe['MOS_zscore'] = dataframe['MOS_zscore']/100.0
 
         dataset_final = KonIQ(dataframe, img_path, normalize_image)
     else:
