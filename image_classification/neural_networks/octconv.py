@@ -19,7 +19,7 @@ class OctaveConv(nn.Module):
         assert 0 <= alpha_in <= 1 and 0 <= alpha_out <= 1, "Alpha should be in the interval from 0 to 1"
         self.alpha_in, self.alpha_out = alpha_in, alpha_out
 
-        print("alpha_in: ", alpha_in, " alpha_out: ", alpha_out)
+        #print("alpha_in: ", alpha_in, " alpha_out: ", alpha_out)
         self.conv_l2l = None if alpha_in == 0 or alpha_out == 0 else \
                         nn.Conv2d(in_channels = int(alpha_in * in_channels), out_channels = int(alpha_out * out_channels), kernel_size = kernel_size, stride = 1, 
                                   padding = padding, dilation = dilation, groups=math.ceil(alpha_in * groups), bias = bias)

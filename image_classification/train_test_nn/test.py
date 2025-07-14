@@ -60,7 +60,7 @@ def validate_model_regression(model, valloader, device='cpu', loss = 'mse', coef
             y_val.extend(labels)
             y_pred.extend(outputs.data)
 
-    print(f"Error on {len(valloader) * valloader.batch_size} val images: {mse_total/total}")
+    print(f"Error on {len(valloader) * valloader.batch_size} val images: {torch.sqrt(mse_total)/total}")
 
     if coefficients is not None:
         y_pred_gpu = torch.stack(y_pred,dim=0)

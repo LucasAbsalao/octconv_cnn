@@ -42,7 +42,7 @@ class KonIQ(Dataset):
         image = Image.open(img_path).convert('RGB')
         totensor = transforms.ToTensor()
         image = totensor(image)
-        label = self.csv_file.at[index, 'MOS']
+        label = self.csv_file.at[index, 'MOS_zscore']
         label = torch.tensor(label, dtype=torch.float32)
         if self.transform:
              image = self.transform(image)
@@ -65,7 +65,6 @@ def get_dataset(dataset:str = 'live', path:str = None, img_path:str = None):
             root_path = path
         csv_path = root_path + 'my_dmos_norm.csv'
 
-        print(os.listdir('../'))
         # Create the dataset
         dataframe = pd.read_csv(csv_path, sep=';')
         dataframe.pop('distorcion')
@@ -92,7 +91,8 @@ def get_dataset(dataset:str = 'live', path:str = None, img_path:str = None):
         csv_path = root_path + 'koniq10k_scores_and_distributions.csv'
 
         dataframe = pd.read_csv(csv_path)
-        dataframe = dataframe[['image_name', 'MOS']]
+        dataframe = dataframe[['image_name', 'MOS_zscore']]
+        dataframe['MOS_zscore'] = dataframe['MOS_zscore']/100.0
 
         dataset_final = KonIQ(dataframe, img_path, normalize_image)
     else:
@@ -105,4 +105,5 @@ if __name__ == '__main__':
     dataloader = torch.utils.data.DataLoader(a, batch_size=2, shuffle= True, collate_fn=custom_collate_fn, num_workers=2)
     print("loaded")
     for image, label in dataloader:
-        print(image.size)
+        if torch.max(label)>1.0:
+            print(torch.max(label))
