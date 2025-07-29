@@ -23,7 +23,7 @@ class LIVE(Dataset):
         image = totensor(image)
         label = self.csv_file.at[index, 'dmos_reverse_normalized']
         label = torch.tensor(label, dtype=torch.float32)
-        if self.transform:
+        if self.transform is not None:
              image = self.transform(image)
 
         return (image,label)
@@ -44,7 +44,7 @@ class KonIQ(Dataset):
         image = totensor(image)
         label = self.csv_file.at[index, 'MOS_zscore']
         label = torch.tensor(label, dtype=torch.float32)
-        if self.transform:
+        if self.transform is not None:
              image = self.transform(image)
 
         return (image,label)
@@ -57,7 +57,7 @@ def custom_collate_fn(batch):
 
 
 
-def get_dataset(dataset:str = 'live', path:str = None, img_path:str = None):
+def get_dataset(dataset:str = 'live', path:str = None, img_path:str = None, preprocess:bool = True):
     if dataset == 'live':
         if path is None:
             root_path = '../data/Live_IQA_release2/'
@@ -77,8 +77,10 @@ def get_dataset(dataset:str = 'live', path:str = None, img_path:str = None):
 
         # target = dataframe.pop('dmos_reverse_normalized')
         # dataframe['image_path'] = dataframe['image_path'].apply(lambda x: root_path + x)
-
-        dataset_final = LIVE(dataframe, root_path, normalize_image)
+        if preprocess:
+            dataset_final = LIVE(dataframe, root_path, normalize_image)
+        else:
+            dataset_final = LIVE(dataframe, root_path)
     
     elif dataset == 'koniq-10k':
         if path is None:
@@ -94,7 +96,10 @@ def get_dataset(dataset:str = 'live', path:str = None, img_path:str = None):
         dataframe = dataframe[['image_name', 'MOS_zscore']]
         dataframe['MOS_zscore'] = dataframe['MOS_zscore']/100.0
 
-        dataset_final = KonIQ(dataframe, img_path, normalize_image)
+        if preprocess:
+            dataset_final = KonIQ(dataframe, img_path, normalize_image)
+        else:
+            dataset_final = KonIQ(dataframe, img_path)
     else:
         print("Ainda não existe suporte para esse dataset :(")
 

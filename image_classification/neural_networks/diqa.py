@@ -69,6 +69,7 @@ class DIQA(nn.Module):
         x = self.relu(self.conv1(x))
         x = self.relu(self.conv2(x))
         x = self.relu(self.conv3(x))
+        x = self.relu(self.conv4(x))
         x = self.relu(self.conv5(x))
         x = self.relu(self.conv6(x))
         x = self.relu(self.conv7(x))

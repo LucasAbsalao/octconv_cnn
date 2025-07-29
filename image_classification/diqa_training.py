@@ -13,13 +13,13 @@ from train_test_nn.train import train_val_diqa
 from train_test_nn.test import validate_model_regression
 
 
-def execute_diqa(epochs:int, model_name:str, dataset_name:str, batch_size:int=1):
+def execute_diqa(epochs:int, model_name:str, dataset_name:str, batch_size:int=1, preprocess:bool = True):
     #O batch size não influencia o live, pois, como as imagens possuem tamanho diferente, é mais difícil de fazer os batchs (teria que mexer na função sampler)
     if dataset_name=='live':
-        dataset = get_dataset('live', 'data/Live_IQA_release2/')
+        dataset = get_dataset('live', 'data/Live_IQA_release2/', preprocess=preprocess)
         batch_size = 1
     elif dataset_name=='koniq-10k':
-        dataset = get_dataset('koniq-10k', 'data/KonIQ-10k/', 'data/KonIQ-10k/512x384/')
+        dataset = get_dataset('koniq-10k', 'data/KonIQ-10k/', 'data/KonIQ-10k/512x384/', preprocess=preprocess)
     else:
         raise Exception("Não tem esse dataset")
     
@@ -42,7 +42,7 @@ def execute_diqa(epochs:int, model_name:str, dataset_name:str, batch_size:int=1)
     else:
         raise Exception("Não tem esse modelo")
     
-    optimizer = torch.optim.NAdam(model.parameters(), lr = 2 * 10 ** -4, weight_decay=5*(10**-4), momentum_decay=0.9)
+    optimizer = torch.optim.NAdam(model.parameters(), lr = 2 * 10 ** -4, momentum_decay=0.9)
     criterion = torch.nn.MSELoss()
 
     #print(torch.cuda.memory_summary(device=None, abbreviated=False))
@@ -53,7 +53,7 @@ def execute_diqa(epochs:int, model_name:str, dataset_name:str, batch_size:int=1)
 
     return model, dict_metrics, all_losses
 
-def image_IQA(model, image_path):
+def image_IQA(model, image_path, preprocess:bool = True):
     image = Image.open(image_path).convert('RGB')
 
     torch.cuda.init()
@@ -64,7 +64,11 @@ def image_IQA(model, image_path):
 
     totensor = transforms.ToTensor()
     image_tensor = totensor(image)
-    image_tensor = normalize_image(image_tensor).unsqueeze(0)
+
+    if preprocess:
+        image_tensor = normalize_image(image_tensor).unsqueeze(0)
+    else:
+        image_tensor = image_tensor.unsqueeze(0)
 
     quality = model(image_tensor.to(device),2)
 
@@ -101,13 +105,13 @@ if __name__ == '__main__':
     # img_path = "../image/arvores.jpg"
     # quality = image_IQA(model, image)
     # print(quality)
-    name = "DIQA_koniq_l2_mos_zscore"
+    name = "DIQA_koniq_corrected_mos_zscore"
     epochs = 40
     executions = 5
 
     srcc_list, plcc_list, loss_list = [], [], []
     for i in range(executions):
-        model, metrics, all_losses = execute_diqa(epochs, 'diqa', 'koniq-10k', 16)
+        model, metrics, all_losses = execute_diqa(epochs, 'diqa', 'koniq-10k', 16, preprocess=True)
         srcc_list.append(metrics['SRCC'])
         plcc_list.append(metrics['PLCC'])
         loss_list.append(all_losses)
@@ -119,13 +123,13 @@ if __name__ == '__main__':
 
     write_metrics_txt(srcc_list, plcc_list, loss_list, name)
 
-    name = "OctDIQA_koniq_l2_mos_zscore"
+    name = "OctDIQA_koniq_corrected_mos_zscore"
     epochs = 40
     executions = 5
 
     srcc_list, plcc_list, loss_list = [], [], []
     for i in range(executions):
-        model, metrics, all_losses = execute_diqa(epochs, 'octdiqa', 'koniq-10k', 16)
+        model, metrics, all_losses = execute_diqa(epochs, 'octdiqa', 'koniq-10k', 16, preprocess=True)
         srcc_list.append(metrics['SRCC'])
         plcc_list.append(metrics['PLCC'])
         loss_list.append(all_losses)
