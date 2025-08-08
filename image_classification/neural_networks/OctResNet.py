@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.functional as F
 
-from neural_networks.octconv import OctaveConv, Conv_BN, Conv_BN_ACT
+from neural_networks.octconv import OctaveConv, OctaveConv_BN, OctaveConv_BN_ACT
 
 class OctBottleNeck(nn.Module):
     expansion = 4
@@ -101,7 +101,7 @@ class OctResNet(nn.Module):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
-                Conv_BN(self.inplanes, planes * block.expansion, kernel_size = 1, stride = stride,
+                OctaveConv_BN(self.inplanes, planes * block.expansion, kernel_size = 1, stride = stride,
                 alpha_in = alpha_in, alpha_out = alpha_out)
             )
 

@@ -44,8 +44,6 @@ class KonIQ(Dataset):
         image = totensor(image)
         label = self.csv_file.at[index, 'MOS_zscore']
         label = torch.tensor(label, dtype=torch.float32)
-        if self.transform is not None:
-             image = self.transform(image)
 
         return (image,label)
 
