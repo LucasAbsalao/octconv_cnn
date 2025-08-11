@@ -28,7 +28,8 @@ class OctDIQA(nn.Module):
                             alpha_in = 0,
                             alpha_out = self.alpha, 
                             stride = 1, 
-                            padding = 1)
+                            padding = 1,
+                            deactivate_dw = True)
 
         self.conv2 = OctaveConv_ACT(in_channels = 48,
                             out_channels = 48,

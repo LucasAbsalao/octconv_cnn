@@ -6,15 +6,16 @@ import math
 
 class OctaveConv(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, alpha_in = 0.5, alpha_out = 0.5, stride = 1, padding = 0, dilation = 1,
-                 groups = 1, bias = False):
+                 groups = 1, bias = False, deactivate_dw = False):
         super(OctaveConv, self).__init__()
+        self.deactivate_dw = deactivate_dw #Útil em casos como a entrada de modelos com apenas um canal, que entraria como depthwise convolution
         self.downsample = nn.AvgPool2d(kernel_size = (2, 2), stride = 2)
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
         assert stride == 1 or stride == 2, "Stride should be 1 or 2"
         self.stride = stride
 
-        self.is_dw = groups == in_channels
+        self.is_dw = groups == in_channels if not self.deactivate_dw else False
 
         assert 0 <= alpha_in <= 1 and 0 <= alpha_out <= 1, "Alpha should be in the interval from 0 to 1"
         self.alpha_in, self.alpha_out = alpha_in, alpha_out
@@ -40,7 +41,8 @@ class OctaveConv(nn.Module):
                                  groups=groups, 
                                  bias = bias)
         
-        self.conv_h2l = None if alpha_in == 1 or alpha_out == 0 or self.is_dw else \
+
+        self.conv_h2l = None if alpha_in == 1 or alpha_out == 0 or self.is_dw and self.deactivate_dw else \
                         nn.Conv2d(in_channels = in_channels - int(alpha_in * in_channels), 
                                   out_channels = int(alpha_out * out_channels), 
                                   kernel_size = kernel_size, 
@@ -49,7 +51,7 @@ class OctaveConv(nn.Module):
                                   dilation = dilation, 
                                   groups=groups, 
                                   bias = bias)
-        
+
         self.conv_h2h = None if alpha_in == 1 or alpha_out == 1 else \
                         nn.Conv2d(in_channels = in_channels - int(alpha_in * in_channels), 
                                   out_channels = out_channels - int(alpha_out * out_channels), 
@@ -69,7 +71,6 @@ class OctaveConv(nn.Module):
         x_h = self.downsample(x_h) if self.stride == 2 else x_h
         x_h2h = self.conv_h2h(x_h)
         x_h2l = self.conv_h2l(self.downsample(x_h)) if self.alpha_out > 0 and not self.is_dw else None
-
 
         if x_l is not None:
             x_l2l = self.downsample(x_l) if self.stride == 2 else x_l
@@ -96,10 +97,10 @@ class OctaveConv(nn.Module):
 
 class OctaveConv_BN(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, alpha_in = 0.5, alpha_out = 0.5, stride = 1, padding = 0, dilation = 1,
-                groups = 1, bias = False, norm_layer = nn.BatchNorm2d):
-        print("CONV_BN")
-        super(Conv_BN, self).__init__()
-        self.conv = OctaveConv(in_channels, out_channels, kernel_size, alpha_in, alpha_out, stride, padding, dilation, groups, bias)
+                groups = 1, bias = False, deactivate_dw = False, norm_layer = nn.BatchNorm2d):
+        print("OctaveConv_BN")
+        super(OctaveConv_BN, self).__init__()
+        self.conv = OctaveConv(in_channels, out_channels, kernel_size, alpha_in, alpha_out, stride, padding, dilation, groups, bias, deactivate_dw)
 
         self.bn_h = None if alpha_out == 1 else norm_layer(int(out_channels * (1 - alpha_out)))
         self.bn_l = None if alpha_out == 0 else norm_layer(int(out_channels * alpha_out))
@@ -111,9 +112,9 @@ class OctaveConv_BN(nn.Module):
     
 class OctaveConv_ACT(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, alpha_in = 0.5, alpha_out = 0.5, stride = 1, padding = 0, dilation = 1,
-                groups=1, bias = False, activation_layer = nn.ReLU):
+                groups=1, bias = False, deactivate_dw = False, activation_layer = nn.ReLU):
         super(OctaveConv_ACT, self).__init__()
-        self.conv = OctaveConv(in_channels, out_channels, kernel_size, alpha_in, alpha_out, stride, padding, dilation, groups, bias)
+        self.conv = OctaveConv(in_channels, out_channels, kernel_size, alpha_in, alpha_out, stride, padding, dilation, groups, bias, deactivate_dw)
 
         self.act = activation_layer(inplace = True)
 
@@ -125,10 +126,10 @@ class OctaveConv_ACT(nn.Module):
     
 class OctaveConv_BN_ACT(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, alpha_in = 0.5, alpha_out = 0.5, stride = 1, padding = 0, dilation = 1,
-                groups=1, bias = False, norm_layer = nn.BatchNorm2d, activation_layer = nn.ReLU):
-        super(Conv_BN_ACT, self).__init__()
-        print("CONV_BN_ACT")
-        self.conv = OctaveConv(in_channels, out_channels, kernel_size, alpha_in, alpha_out, stride, padding, dilation, groups, bias)
+                groups=1, bias = False, deactivate_dw = False, norm_layer = nn.BatchNorm2d, activation_layer = nn.ReLU):
+        super(OctaveConv_BN_ACT, self).__init__()
+        print("OctaveConv_BN_ACT")
+        self.conv = OctaveConv(in_channels, out_channels, kernel_size, alpha_in, alpha_out, stride, padding, dilation, groups, bias, deactivate_dw)
 
         self.bn_h = None if alpha_out == 1 else norm_layer(int(out_channels * (1 - alpha_out)))
         self.bn_l = None if alpha_out == 0 else norm_layer(int(out_channels * alpha_out))

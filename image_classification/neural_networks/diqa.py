@@ -75,7 +75,6 @@ class DIQA(nn.Module):
         x = self.relu(self.conv7(x))
         result_conv8 = self.relu(self.conv8(x))
 
-
         if mode == 1:
             e = self.conv9(result_conv8)
             return e

@@ -16,14 +16,14 @@ class OctBottleNeck(nn.Module):
         width = int(planes * (base_width / 64.)) * groups
         print("OctResNet: alpha_in: ", alpha_in, " alpha_out: ", alpha_out)
         print("output: ", output)
-        self.conv1 = Conv_BN_ACT(inplanes, width, kernel_size = 1, alpha_in = alpha_in, alpha_out = alpha_out, norm_layer = norm_layer)
+        self.conv1 = OctaveConv_BN_ACT(inplanes, width, kernel_size = 1, alpha_in = alpha_in, alpha_out = alpha_out, norm_layer = norm_layer)
         print("output: ", output)
-        self.conv2 = Conv_BN_ACT(width, width, kernel_size=3, stride=stride, padding=1, groups=groups, norm_layer=norm_layer,
+        self.conv2 = OctaveConv_BN_ACT(width, width, kernel_size=3, stride=stride, padding=1, groups=groups, norm_layer=norm_layer,
                                  alpha_in=0 if output else alpha_general, alpha_out=0 if output else alpha_general)
         print("output: ", output)
         
 
-        self.conv3 = Conv_BN(width, planes * self.expansion, kernel_size=1, norm_layer=norm_layer,
+        self.conv3 = OctaveConv_BN(width, planes * self.expansion, kernel_size=1, norm_layer=norm_layer,
                              alpha_in=0 if output else alpha_general, alpha_out=0 if output else alpha_general)
         print("output: ", output)
         self.relu = nn.ReLU(inplace=True)

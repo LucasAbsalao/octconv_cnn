@@ -3,6 +3,7 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 import math
+import cv2
 
 def get_gaussian_kernel(kernel_size: int, sigma: float, dtype = torch.float32):
     kernel_range = torch.arange(-kernel_size/2, kernel_size/2)
@@ -63,12 +64,13 @@ def show_img(image):
     plt.imshow(img_display, cmap = 'gray')
     plt.show()
 
-# teste = cv2.imread('bikes.bmp')
-# teste = cv2.cvtColor(teste, cv2.COLOR_BGR2RGB)
+if __name__ == "__main__":
+    teste = cv2.imread('bikes.bmp')
+    teste = cv2.cvtColor(teste, cv2.COLOR_BGR2RGB)
 
-# transform = transforms.Compose([
-#     transforms.ToTensor()
-# ])
-# teste_tensor = transform(teste)
-# teste_tensor = torch.unsqueeze(teste_tensor,0)
-# image = normalize_image(teste_tensor)
+    transform = transforms.Compose([
+        transforms.ToTensor()
+    ])
+    teste_tensor = transform(teste)
+    teste_tensor = torch.unsqueeze(teste_tensor,0)
+    image = normalize_image(teste_tensor)

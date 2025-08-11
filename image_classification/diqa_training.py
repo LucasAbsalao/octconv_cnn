@@ -105,13 +105,15 @@ if __name__ == '__main__':
     # img_path = "../image/arvores.jpg"
     # quality = image_IQA(model, image)
     # print(quality)
-    name = "DIQA_koniq_corrected_mos_zscore"
+
+
+    name = "OctDIQA_koniq_corrected_mos_zscore"
     epochs = 40
     executions = 5
 
     srcc_list, plcc_list, loss_list = [], [], []
     for i in range(executions):
-        model, metrics, all_losses = execute_diqa(epochs, 'diqa', 'koniq-10k', 16, preprocess=True)
+        model, metrics, all_losses = execute_diqa(epochs, 'octdiqa', 'koniq-10k', 16, preprocess=True)
         srcc_list.append(metrics['SRCC'])
         plcc_list.append(metrics['PLCC'])
         loss_list.append(all_losses)
@@ -123,13 +125,13 @@ if __name__ == '__main__':
 
     write_metrics_txt(srcc_list, plcc_list, loss_list, name)
 
-    name = "OctDIQA_koniq_corrected_mos_zscore"
+    name = "DIQA_koniq_corrected_mos_zscore"
     epochs = 40
     executions = 5
 
     srcc_list, plcc_list, loss_list = [], [], []
     for i in range(executions):
-        model, metrics, all_losses = execute_diqa(epochs, 'octdiqa', 'koniq-10k', 16, preprocess=True)
+        model, metrics, all_losses = execute_diqa(epochs, 'diqa', 'koniq-10k', 16, preprocess=True)
         srcc_list.append(metrics['SRCC'])
         plcc_list.append(metrics['PLCC'])
         loss_list.append(all_losses)
